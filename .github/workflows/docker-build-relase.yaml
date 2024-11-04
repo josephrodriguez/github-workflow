@@ -6,26 +6,55 @@ on:
         description: "Default Github environment variable - repository"
         required: true
         type: string
+
       docker_platform:
         description: "Specifies the Docker platform for image building"
         default: linux/amd64
         required: false
-        type: string                  
+        type: string
+
       docker_context:
         description: "Specifies the base directory for Docker image building"
         default: "."
         required: false
         type: string
+
+      docker_cache_from:
+        description: "Source for Docker layer caching. Useful for accelerating builds by reusing previously cached layers. Set as 'type=gha' to enable GitHub Actions cache."
+        required: false
+        type: string
+        default: "type=gha"
+
+      docker_cache_to:
+        description: "Destination for storing Docker cache layers. Set as 'type=gha,mode=max' to push all layers back to GitHub Actions cache, maximizing cache reuse across builds."
+        required: false
+        type: string
+        default: "type=gha,mode=max"
+
+      docker_provenance:
+        description: "Specifies the provenance mode for Docker builds, providing reproducibility and traceability metadata. Use 'mode=max' to include detailed build information."
+        required: false
+        type: string
+        default: "mode=max"
+
+      docker_sbom:
+        description: "Generate a Software Bill of Materials (SBOM) for the Docker image, enhancing security and transparency by listing dependencies and packages."
+        required: false
+        type: string
+        default: "true"
+
       docker_file_name:
         description: "Specifies the path to the Dockerfile used in the image building process"
         default: "./Dockerfile"
         required: false
         type: string
+
       docker_push_enabled:
         description: "Specifies the path to the Dockerfile used in the image building process"
         default: false
         required: false
-        type: boolean             
+        type: boolean  
+                   
       os_version:
         description: "Container operating system"
         default: "ubuntu-latest"
@@ -61,7 +90,11 @@ jobs:
       - name: Build Docker image
         uses: docker/build-push-action@v6
         with:
+          cache-from: ${{ inputs.docker_cache_from }}
+          cache-to: ${{ inputs.docker_cache_to }}
           context: ${{ inputs.docker_context }}
           file: ${{ inputs.docker_file_name }}
           platforms: ${{ inputs.docker_platform }}
-          push: ${{ inputs.docker_push_enabled }}     
+          push: ${{ inputs.docker_push_enabled }}
+          provenance: ${{ inputs.docker_provenance }}
+          sbom: ${{ inputs.docker_sbom }}
