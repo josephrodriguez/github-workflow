@@ -1,0 +1,67 @@
+name: java-docker-release
+on:
+  workflow_call:
+    inputs:
+      github_repository:
+        description: "Default Github environment variable - repository"
+        required: true
+        type: string
+      docker_platform:
+        description: "Specifies the Docker platform for image building"
+        default: linux/amd64
+        required: false
+        type: string                  
+      docker_context:
+        description: "Specifies the base directory for Docker image building"
+        default: "."
+        required: false
+        type: string
+      docker_file_name:
+        description: "Specifies the path to the Dockerfile used in the image building process"
+        default: "./Dockerfile"
+        required: false
+        type: string
+      docker_push_enabled:
+        description: "Specifies the path to the Dockerfile used in the image building process"
+        default: false
+        required: false
+        type: boolean             
+      os_version:
+        description: "Container operating system"
+        default: "ubuntu-latest"
+        required: false
+        type: string
+    secrets:
+      DOCKER_REGISTRY_URL:
+        required: true
+      DOCKER_REGISTRY_USERNAME:
+        required: true
+      DOCKER_REGISTRY_TOKEN:
+        required: true        
+jobs:
+  build:
+    runs-on: ${{ inputs.os_version }}
+    steps:
+      - name: Checkout Code
+        uses: actions/checkout@v4
+      
+      - name: Set up Qemu
+        uses: docker/setup-qemu-action@v3
+
+      - name: Set up Docker buildx
+        uses: docker/setup-buildx-action@v3   
+        
+      - name: Log in to Docker registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ secrets.DOCKER_REGISTRY_URL }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+          
+      - name: Build Docker image
+        uses: docker/build-push-action@v6
+        with:
+          context: ${{ inputs.docker_context }}
+          file: ${{ inputs.docker_file_name }}
+          platforms: ${{ inputs.docker_platform }}
+          push: ${{ inputs.docker_push_enabled }}     
