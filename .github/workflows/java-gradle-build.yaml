@@ -21,6 +21,16 @@ on:
         required: false
         default: true
         type: boolean
+      gradle_enable_sonar:
+        description: "Enable Sonar analysis"
+        required: false
+        default: false
+        type: boolean
+      gradle_enable_scan:
+        description: "Enable Gradle build scans"
+        required: false
+        default: false
+        type: boolean        
       gradle_log_level:
         description: "Gradle logging level"
         required: false
@@ -68,4 +78,9 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: ./gradlew build --${{ inputs.gradle_log_level}} --warning-mode all
+        run: |
+          ./gradlew build \
+          ${{ inputs.gradle_enable_sonar && 'sonar' || '' }} \
+          --${{ inputs.gradle_log_level}}  \
+          ${{ inputs.gradle_enable_scan && '--scan' || '' }} \
+          --warning-mode all        
