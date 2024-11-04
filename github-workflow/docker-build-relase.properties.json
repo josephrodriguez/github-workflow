@@ -1,0 +1,7 @@
+{
+    "name": "Build docker image",
+    "description": "Build multiplatform Docker image for applications",
+    "categories": [
+        "Docker"
+    ]
+}
