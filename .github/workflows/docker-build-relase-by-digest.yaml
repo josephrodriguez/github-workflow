@@ -9,7 +9,7 @@ on:
       docker_build_args:
         description: "Define Docker build arguments"
         required: false
-        type: string          
+        type: string        
       docker_context:
         description: "Specifies the base directory for Docker image building"
         default: "."
@@ -33,16 +33,21 @@ on:
         description: "Specifies the tagging strategy for Docker images. This can include semantic versioning, branch names, dates, or SHA values. By default, tags may follow semantic versioning patterns or use custom date and commit-based formats."
         required: false
         type: string
-      docker_platform:
-        description: "Specifies the Docker platform for image building"
-        default: linux/amd64
-        required: false
-        type: string        
       docker_provenance:
         description: "Specifies the provenance mode for Docker builds, providing reproducibility and traceability metadata. Use 'mode=max' to include detailed build information."
         required: false
         type: string
         default: "mode=max"
+      docker_platform:
+        description: "Specifies the Docker platform for image building"
+        default: linux/amd64
+        required: false
+        type: string
+      docker_platform_name:
+        description: "Specifies the Docker platform name"
+        default: linux-amd64
+        required: false
+        type: string              
       docker_registry_url:
         description: "Specifies the docker registry url to push the docker image."
         required: true
@@ -101,6 +106,7 @@ jobs:
           
       - name: Build Docker image
         uses: docker/build-push-action@v6
+        id: build
         with:
           build-args: ${{ inputs.docker_build_args }}
           cache-from: ${{ inputs.docker_cache_from }}
@@ -108,8 +114,21 @@ jobs:
           context: ${{ inputs.docker_context }}
           file: ${{ inputs.docker_file_name }}
           platforms: ${{ inputs.docker_platform }}
-          push: ${{ inputs.docker_push_enabled }}
-          tags: ${{ steps.metadata.outputs.tags }}
+          outputs: type=image,name=${{ inputs.docker_image_name }},push-by-digest=true,name-canonical=true,push=${{ inputs.docker_push_enabled }}
           labels: ${{ steps.metadata.outputs.labels }}
           provenance: ${{ inputs.docker_provenance }}
           sbom: ${{ inputs.docker_sbom }}
+
+      - name: Export digest
+        run: |
+          mkdir -p /tmp/digests
+          digest="${{ steps.build.outputs.digest }}"
+          touch "/tmp/digests/${digest#sha256:}"
+        
+      - name: Upload digest
+        uses: actions/upload-artifact@v4
+        with:
+          name: digests-${{ inputs.docker_platform_name }}
+          path: /tmp/digests/*
+          if-no-files-found: error
+          retention-days: 1          
