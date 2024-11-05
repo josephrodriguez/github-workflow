@@ -25,17 +25,13 @@ on:
         required: false
         type: string
         default: "type=gha,mode=max"
-      docker_digest_suffix:
-        description: "Docker image digest suffix"
+      docker_digest_name:
+        description: "Docker image digest artifact name"
         required: true
         type: string
       docker_image_name:
         description: "The name of the Docker image to be built and pushed, typically in the format 'owner/repository'. This variable is required for setting the target image repository."
         required: true
-        type: string
-      docker_image_tags:
-        description: "Specifies the tagging strategy for Docker images. This can include semantic versioning, branch names, dates, or SHA values. By default, tags may follow semantic versioning patterns or use custom date and commit-based formats."
-        required: false
         type: string
       docker_provenance:
         description: "Specifies the provenance mode for Docker builds, providing reproducibility and traceability metadata. Use 'mode=max' to include detailed build information."
@@ -105,7 +101,6 @@ jobs:
         uses: docker/metadata-action@v5
         with:
           images: ${{ inputs.docker_image_name }}
-          tags: ${{ inputs.docker_image_tags }}       
         
       - name: Log in to Docker registry
         uses: docker/login-action@v3
@@ -138,7 +133,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ inputs.docker_digest_suffix }}-${{ steps.setup_vars.outputs.platform }}
+          name: ${{ inputs.docker_digest_name }}-${{ steps.setup_vars.outputs.platform }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1     

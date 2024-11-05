@@ -2,7 +2,7 @@ name: docker-push
 on:
   workflow_call:
     inputs:
-      docker_digest_name:
+      docker_digest_pattern:
         description: "The name of the Docker digest artifact to download. This will be used to locate the specific digest files created in a previous workflow step"
         required: true
         type: string
@@ -41,7 +41,7 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           path: ${{ inputs.docker_digest_path}}
-          pattern: ${{ inputs.docker_digest_name }}
+          pattern: ${{ inputs.docker_digest_pattern }}
           merge-multiple: true
 
       - name: Setup Docker Buildx
