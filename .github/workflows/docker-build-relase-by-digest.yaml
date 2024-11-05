@@ -129,6 +129,22 @@ jobs:
           provenance: ${{ inputs.docker_provenance }}
           sbom: ${{ inputs.docker_sbom }}
 
+      - name: Resolve job ID from workflow run
+        id: job_id
+        uses: actions/github-script@main
+        env:
+          matrix: ${{ toJson(matrix) }}
+        with:
+          script: |
+            const { data: workflow_run } = await github.rest.actions.listJobsForWorkflowRun({
+              owner: context.repo.owner,
+              repo: context.repo.repo,
+              run_id: context.runId
+            });
+            const matrix = JSON.parse(process.env.matrix);
+            const job_name = `${context.job}${matrix ? ` (${Object.values(matrix).join(", ")})` : ""}`;
+            return workflow_run.jobs.find((job) => job.name === job_name).id;
+
       - name: Export digest
         run: |
           mkdir -p /tmp/digests
@@ -138,7 +154,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ steps.setup_vars.outputs.platform }}-${{ inputs.github_run_id }}
+          name: digests-${{ steps.setup_vars.outputs.platform }}-${{ inputs.github_run_id }}-${{ steps.job_id.outputs.result }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1          
