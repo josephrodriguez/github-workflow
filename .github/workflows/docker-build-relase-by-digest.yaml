@@ -138,7 +138,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ steps.setup_vars.outputs.platform }}-${{ inputs.docker_digest_suffix }}
+          name: digests-${{ inputs.docker_digest_suffix }}-${{ steps.setup_vars.outputs.platform }}
           path: /tmp/digests/*
           if-no-files-found: error
-          retention-days: 1          
+          retention-days: 1     
