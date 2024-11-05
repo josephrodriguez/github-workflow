@@ -6,6 +6,10 @@ on:
         description: "Default Github environment variable - repository"
         required: true
         type: string
+      github_run_number:
+        description: "Default Github environment variable - run number"
+        required: true
+        type: string        
       docker_build_args:
         description: "Define Docker build arguments"
         required: false
@@ -134,7 +138,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${{ steps.setup_vars.outputs.platform }}
+          name: digests-${{ steps.setup_vars.outputs.platform }}-${{ inputs.github_run_number }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1          
