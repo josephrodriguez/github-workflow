@@ -90,6 +90,12 @@ jobs:
       - name: Set up Docker buildx
         uses: docker/setup-buildx-action@v3
 
+      - name: Setup variables
+        id: setup_vars
+        run: |
+          platform=${{ inputs.docker_platform }}
+          echo "platform=${platform//\//-}" >> $GITHUB_OUTPUT
+
       - name: Docker metadata
         id: metadata
         uses: docker/metadata-action@v5
@@ -128,7 +134,7 @@ jobs:
       - name: Upload digest
         uses: actions/upload-artifact@v4
         with:
-          name: digests-${ inputs.docker_platform//\//-}
+          name: digests-${{ steps.setup_vars.outputs.platform }}
           path: /tmp/digests/*
           if-no-files-found: error
           retention-days: 1          
