@@ -1,0 +1,72 @@
+name: docker-push
+on:
+  workflow_call:
+    inputs:
+      docker_digest_name:
+        description: "The name of the Docker digest artifact to download. This will be used to locate the specific digest files created in a previous workflow step"
+        required: true
+        type: string
+      docker_digest_path:
+        description: "The path where the Docker digest files will be downloaded. Defaults to /tmp/digests. Set this to specify a different directory for storing the digest files if needed."
+        required: false
+        default: "/tmp/digests"
+        type: string              
+      docker_image_name:
+        description: "The full name of the Docker image to push to the registry, typically in the format repository/image-name."
+        required: true
+        type: string
+      docker_image_tags:
+        description: "Tags to apply to the Docker image, usually in a comma-separated format (e.g., latest,1.0,stable). These tags will be used when pushing the image to the specified Docker registry."
+        required: true
+        type: string              
+      docker_registry_url:
+        description: "The URL of the Docker registry where the image will be pushed. For GitHub Container Registry, use ghcr.io."
+        required: true
+        type: string
+      os_version:
+        description: "The operating system version used for the workflow runner. Defaults to ubuntu-latest. Adjust this to a different runner version if a specific OS version is required."
+        default: "ubuntu-latest"
+        required: false
+        type: string        
+    secrets:
+      DOCKER_REGISTRY_USERNAME:
+        required: true
+      DOCKER_REGISTRY_TOKEN:
+        required: true     
+jobs:
+  push:
+    runs-on: ${{ inputs.os_version }}
+    steps:
+      - name: Download digests
+        uses: actions/download-artifact@v4
+        with:
+          path: ${{ inputs.docker_digest_path}}
+          pattern: ${{ inputs.docker_digest_name }}
+          merge-multiple: true
+
+      - name: Setup Docker Buildx
+        uses: docker/setup-buildx-action@v3
+
+      - name: Docker metadata
+        id: metadata
+        uses: docker/metadata-action@v5
+        with:
+          images: ${{ inputs.docker_image_name }}
+          tags: ${{ inputs.docker_image_tags }}
+
+      - name: Log in to container registry
+        uses: docker/login-action@v3
+        with:
+          registry: ${{ inputs.docker_registry_url }}
+          username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
+          password: ${{ secrets.DOCKER_REGISTRY_TOKEN }}
+
+      - name: Create manifest
+        working-directory: /tmp/digests
+        run: |
+          docker buildx imagetools create $(jq -cr '.tags | map("-t " + .) | join(" ")' <<< "$DOCKER_METADATA_OUTPUT_JSON") \
+          $(printf '${{ inputs.docker_image_name}}:${{ steps.metadata.outputs.version }}@sha256:%s ' *)
+
+      - name: Inspect image
+        run: |
+          docker buildx imagetools inspect ${{ inputs.docker_image_name}}:${{ steps.metadata.outputs.version }}
