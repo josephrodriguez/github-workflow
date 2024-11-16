@@ -38,11 +38,28 @@ on:
         required: false
         default: "Release"
         type: string
+      slack_username:
+        description: "Slack username for the notification"
+        required: false
+        default: "bot"
+        type: string
+      slack_channel:
+        description: "Slack channel name for the notification"
+        required: false
+        default: "slack-notification"
+        type: string
+      slack_title:
+        description: "Slack title of the notification"
+        required: false
+        default: "Build"
+        type: string         
     secrets:
       NUGET_USERNAME:
         required: true
       NUGET_PASSWORD:
-        required: true        
+        required: true
+      SLACK_WEBHOOK:
+        required: false  
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -84,3 +101,12 @@ jobs:
       - name: Run tests
         if: ${{ inputs.run_tests }}
         run: dotnet test --no-build --verbosity normal
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        env:
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_CHANNEL: ${{ inputs.slack_channel }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: ${{ inputs.slack_title }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}        
