@@ -105,7 +105,7 @@ jobs:
 
       - name: Run tests
         if: ${{ inputs.run_tests }}
-        run: dotnet test --no-build --verbosity normal
+        run: dotnet test --no-build --logger "console;verbosity=detailed"
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
