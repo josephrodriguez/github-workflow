@@ -72,6 +72,26 @@ on:
         default: "ubuntu-latest"
         required: false
         type: string
+      slack_enabled:
+        description: "Flag to enable Slack notifications"
+        required: false
+        default: false
+        type: boolean
+      slack_username:
+        description: "Slack username for the notification"
+        required: false
+        default: "bot"
+        type: string
+      slack_channel:
+        description: "Slack channel name for the notification"
+        required: false
+        default: "slack-notification"
+        type: string
+      slack_title:
+        description: "Slack title of the notification"
+        required: false
+        default: "Build"
+        type: string           
     secrets:
       DOCKER_REGISTRY_USERNAME:
         required: true
@@ -136,4 +156,14 @@ jobs:
           name: ${{ inputs.docker_digest_name }}-${{ steps.setup_vars.outputs.platform }}
           path: /tmp/digests/*
           if-no-files-found: error
-          retention-days: 1     
+          retention-days: 1
+
+      - name: Slack notification
+        uses: rtCamp/action-slack-notify@v2
+        if: ${{ inputs.slack_enabled }}
+        env:
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_CHANNEL: ${{ inputs.slack_channel }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: ${{ inputs.slack_title }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}              
