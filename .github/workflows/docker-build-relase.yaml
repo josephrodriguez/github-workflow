@@ -9,7 +9,6 @@ on:
       docker_build_args:
         description: "Define Docker build arguments"
         required: false
-        type: string          
       docker_context:
         description: "Specifies the base directory for Docker image building"
         default: "."
