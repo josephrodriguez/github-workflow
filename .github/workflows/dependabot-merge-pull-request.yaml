@@ -8,16 +8,13 @@ jobs:
   dependabot:
     runs-on: ubuntu-latest
     if: ${{ github.actor == 'dependabot[bot]' && github.event_name == 'pull_request'}}
-    permissions:
-      pull-requests: write
-      contents: read
+    permissions: write-all
     steps:
       - name: Dependabot metadata
         id: metadata
         uses: dependabot/fetch-metadata@v2.2.0
         with:
           github-token: ${{ secrets.AUTH_TOKEN }}
-
       - name: Enable auto-merge for Dependabot PRs
         run: gh pr merge --auto --merge "$PR_URL"
         env:
