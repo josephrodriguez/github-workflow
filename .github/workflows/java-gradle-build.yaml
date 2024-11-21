@@ -82,6 +82,11 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
+      # Step 4: Run Gradle build and tests
+      - name: Build and test with Gradle
+        run: ./gradlew clean test --${{ inputs.gradle_log_level}}
+
+      # Step 5: Build
       - name: Build and Analyze with Gradle
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -91,4 +96,4 @@ jobs:
           ${{ inputs.gradle_disable_daemon && '--no-daemon' || '' }} \
           --${{ inputs.gradle_log_level}}  \
           ${{ inputs.gradle_enable_scan && '--scan' || '' }} \
-          --warning-mode all        
+          --warning-mode all
