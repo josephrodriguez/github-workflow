@@ -1,0 +1,67 @@
+name: Gradle Java Publish
+on:
+  workflow_call:
+    inputs:
+      java_version:
+        description: "JDK version to use"
+        required: false
+        default: '21'
+        type: string
+
+      java_distribution:
+        description: "JDK distribution to use"
+        required: true
+        type: string
+
+      gradle_enable_cache:
+        description: "Cache Gradle dependencies"
+        required: false
+        default: false
+        type: boolean
+
+      gradle_enable_scan:
+        description: "Enable Gradle build scans"
+        required: false
+        default: false
+        type: boolean
+
+      gradle_log_level:
+        description: "Gradle logging level"
+        required: false
+        default: "info"
+        type: string        
+    secrets:
+      MAVEN_REGISTRY_USERNAME:
+        required: true
+      MAVEN_REGISTRY_PASSWORD:
+        required: true
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4.2.2
+
+      - name: Set up JDK
+        uses: actions/setup-java@v4
+        with:
+          java-version: ${{ inputs.java_version }}
+          distribution: ${{ inputs.java_distribution }}
+          cache: gradle
+
+      - name: Cache Gradle packages
+        if: ${{ inputs.gradle_enable_cache }}
+        uses: actions/cache@v4
+        with:
+          path: ~/.gradle/caches
+          key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
+          restore-keys: ${{ runner.os }}-gradle
+
+      - name: Build and test with Gradle
+        run: ./gradlew clean test --${{ inputs.gradle_log_level}}
+
+      - name: Publish package
+        run: ./gradlew publish --${{ inputs.gradle_log_level}}  ${{ inputs.gradle_enable_scan && '--scan' || '' }}
+        env:
+          MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
+          MAVEN_REGISTRY_PASSWORD: ${{ secrets.MAVEN_REGISTRY_PASSWORD }}
