@@ -93,6 +93,9 @@ jobs:
             echo "settings-template.xml not found. Skipping this step."
           fi
 
+      - run: |
+          cat ~/.m2/settings.xml
+          
       - name: Build and test with Gradle
         run: ./gradlew clean test --${{ inputs.gradle_log_level}}
 
