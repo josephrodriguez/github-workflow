@@ -126,7 +126,7 @@ jobs:
           MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
           MAVEN_REGISTRY_PASSWORD: ${{ secrets.MAVEN_REGISTRY_PASSWORD }}
         run: |
-          ./gradlew clean build \
+          ./gradlew build \
           ${{ inputs.gradle_run_tests && 'test' || '' }} \
           ${{ inputs.gradle_enable_sonar && 'sonar' || '' }} \
           ${{ inputs.gradle_disable_daemon && '--no-daemon' || '' }} \
