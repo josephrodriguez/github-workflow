@@ -7,24 +7,20 @@ on:
         required: false
         default: '21'
         type: string
-
       java_distribution:
         description: "JDK distribution to use"
         required: true
         type: string
-
       gradle_enable_cache:
         description: "Cache Gradle dependencies"
         required: false
         default: false
         type: boolean
-
       gradle_enable_scan:
         description: "Enable Gradle build scans"
         required: false
         default: false
         type: boolean
-
       gradle_log_level:
         description: "Gradle logging level"
         required: false
@@ -56,6 +52,16 @@ jobs:
           path: ~/.gradle/caches
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
+
+      - name: Maven settings
+        run: |
+          if [ -f settings-template.xml ]; then
+            echo "settings-template.xml found. Copying to ~/.m2/settings.xml"
+            mkdir -p ~/.m2
+            cp settings-template.xml ~/.m2/settings.xml
+          else
+            echo "settings-template.xml not found. Skipping this step."
+          fi          
 
       - name: Build and test with Gradle
         run: ./gradlew clean test --${{ inputs.gradle_log_level}}

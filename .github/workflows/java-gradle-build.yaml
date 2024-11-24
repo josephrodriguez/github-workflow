@@ -49,6 +49,10 @@ on:
     secrets:
       SONAR_TOKEN:
         required: false
+      MAVEN_REGISTRY_USERNAME:
+        required: false
+      MAVEN_REGISTRY_PASSWORD:
+        required: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -79,14 +83,24 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
-      # Step 4: Run Gradle build and tests
+      - name: Maven settings
+        run: |
+          if [ -f settings-template.xml ]; then
+            echo "settings-template.xml found. Copying to ~/.m2/settings.xml"
+            mkdir -p ~/.m2
+            cp settings-template.xml ~/.m2/settings.xml
+          else
+            echo "settings-template.xml not found. Skipping this step."
+          fi
+
       - name: Build and test with Gradle
         run: ./gradlew clean test --${{ inputs.gradle_log_level}}
 
-      # Step 5: Build
       - name: Build and Analyze with Gradle
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+          MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
+          MAVEN_REGISTRY_PASSWORD: ${{ secrets.MAVEN_REGISTRY_PASSWORD }}
         run: |
           ./gradlew build \
           ${{ inputs.gradle_enable_sonar && 'sonar' || '' }} \
