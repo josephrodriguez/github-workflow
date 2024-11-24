@@ -98,13 +98,7 @@ jobs:
             echo "settings-template.xml not found. Skipping this step."
           fi
 
-      - name: Gradle test
-        run: ./gradlew clean test --${{ inputs.gradle_log_level}}
-        env:
-          MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
-          MAVEN_REGISTRY_PASSWORD: ${{ secrets.MAVEN_REGISTRY_PASSWORD }}
-
-      - name: Build and Analyze with Gradle
+      - name: Build with Gradle
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
