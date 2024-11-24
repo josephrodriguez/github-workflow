@@ -41,6 +41,11 @@ on:
         required: false
         default: false
         type: boolean
+      gradle_run_tests:
+        description: "Run tests during the build"
+        required: false
+        default: true
+        type: boolean
       gradle_log_level:
         description: "Gradle logging level"
         required: false
@@ -93,11 +98,11 @@ jobs:
             echo "settings-template.xml not found. Skipping this step."
           fi
 
-      - run: |
-          cat ~/.m2/settings.xml
-          
-      - name: Build and test with Gradle
+      - name: Gradle test
         run: ./gradlew clean test --${{ inputs.gradle_log_level}}
+        env:
+          MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
+          MAVEN_REGISTRY_PASSWORD: ${{ secrets.MAVEN_REGISTRY_PASSWORD }}
 
       - name: Build and Analyze with Gradle
         env:
@@ -105,7 +110,8 @@ jobs:
           MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
           MAVEN_REGISTRY_PASSWORD: ${{ secrets.MAVEN_REGISTRY_PASSWORD }}
         run: |
-          ./gradlew build \
+          ./gradlew clean build \
+          ${{ inputs.gradle_run_tests && 'test' || '' }} \
           ${{ inputs.gradle_enable_sonar && 'sonar' || '' }} \
           ${{ inputs.gradle_disable_daemon && '--no-daemon' || '' }} \
           --${{ inputs.gradle_log_level}}  \
