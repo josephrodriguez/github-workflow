@@ -25,12 +25,34 @@ on:
         description: "Gradle logging level"
         required: false
         default: "info"
-        type: string        
+        type: string
+      slack_enabled:
+        description: "Flag to enable Slack notifications"
+        required: false
+        default: false
+        type: boolean
+      slack_username:
+        description: "Slack username for the notification"
+        required: false
+        default: "bot"
+        type: string
+      slack_channel:
+        description: "Slack channel name for the notification"
+        required: false
+        default: "slack-notification"
+        type: string
+      slack_title:
+        description: "Slack title of the notification"
+        required: false
+        default: "Build"
+        type: string                
     secrets:
       MAVEN_REGISTRY_USERNAME:
         required: true
       MAVEN_REGISTRY_PASSWORD:
         required: true
+      SLACK_WEBHOOK:
+        required: false           
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -71,3 +93,13 @@ jobs:
         env:
           MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
           MAVEN_REGISTRY_PASSWORD: ${{ secrets.MAVEN_REGISTRY_PASSWORD }}
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: ${{ inputs.slack_enabled }}
+        env:
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_CHANNEL: ${{ inputs.slack_channel }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: ${{ inputs.slack_title }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}             
