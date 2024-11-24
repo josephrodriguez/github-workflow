@@ -7,42 +7,40 @@ on:
         required: false
         default: '21'
         type: string
-
       java_distribution:
         description: "JDK distribution to use"
         required: true
         type: string
-
       cache_gradle:
         description: "Cache Gradle dependencies"
         required: false
         default: true
         type: boolean
-
       cache_sonar:
         description: "Cache SonarCloud packages"
         required: false
         default: true
         type: boolean
-
+      gradle_build_args:
+        description: "Additional Gradle build arguments (e.g., '-PmavenRepoUser=user -PmavenRepoPassword=password')"
+        required: false
+        default: ""
+        type: string        
       gradle_disable_daemon:
         description: "Set to true to disable the Gradle daemon by using the --no-daemon flag."
         required: false
         default: true
         type: boolean
-
       gradle_enable_sonar:
         description: "Enable Sonar analysis"
         required: false
         default: false
         type: boolean
-
       gradle_enable_scan:
         description: "Enable Gradle build scans"
         required: false
         default: false
         type: boolean
-
       gradle_log_level:
         description: "Gradle logging level"
         required: false
@@ -51,7 +49,6 @@ on:
     secrets:
       SONAR_TOKEN:
         required: false
-
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -96,4 +93,5 @@ jobs:
           ${{ inputs.gradle_disable_daemon && '--no-daemon' || '' }} \
           --${{ inputs.gradle_log_level}}  \
           ${{ inputs.gradle_enable_scan && '--scan' || '' }} \
+          ${{ inputs.gradle_build_args }} \
           --warning-mode all
