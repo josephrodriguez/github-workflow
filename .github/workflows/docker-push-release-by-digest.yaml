@@ -56,6 +56,9 @@ on:
 jobs:
   push:
     runs-on: ${{ inputs.os_version }}
+    outputs:
+      docker_image_name: ${{ inputs.docker_image_name}}
+      docker_image_version: ${{ steps.metadata.outputs.version }}
     steps:
       - name: Download digests
         uses: actions/download-artifact@v4
@@ -99,4 +102,4 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.slack_channel }}
           SLACK_COLOR: ${{ job.status }}
           SLACK_TITLE: ${{ inputs.slack_title }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}               
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}                     
