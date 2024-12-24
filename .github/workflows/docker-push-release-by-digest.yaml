@@ -46,7 +46,7 @@ on:
       slack_title:
         description: "Slack title of the notification"
         required: false
-        default: "Build"
+        default: "Docker image digest pushed to Docker registry"
         type: string             
     secrets:
       DOCKER_REGISTRY_USERNAME:
