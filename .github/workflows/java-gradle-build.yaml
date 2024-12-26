@@ -46,6 +46,11 @@ on:
         required: false
         default: true
         type: boolean
+      gradle_native_tests:
+        description: "Run native tests during the build"
+        required: false
+        default: false
+        type: boolean        
       gradle_log_level:
         description: "Gradle logging level"
         required: false
@@ -110,16 +115,6 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
-      - name: Maven settings
-        run: |
-          if [ -f settings-template.xml ]; then
-            echo "settings-template.xml found. Copying to ~/.m2/settings.xml"
-            mkdir -p ~/.m2
-            cp settings-template.xml ~/.m2/settings.xml
-          else
-            echo "settings-template.xml not found. Skipping this step."
-          fi
-
       - name: Build with Gradle
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
@@ -128,6 +123,7 @@ jobs:
         run: |
           ./gradlew build \
           ${{ inputs.gradle_run_tests && 'test' || '' }} \
+          ${{ inputs.gradle_native_tests && 'nativeTest' || ''}} \
           ${{ inputs.gradle_enable_sonar && 'sonar' || '' }} \
           ${{ inputs.gradle_disable_daemon && '--no-daemon' || '' }} \
           --${{ inputs.gradle_log_level}}  \
