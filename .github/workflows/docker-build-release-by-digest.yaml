@@ -145,6 +145,7 @@ jobs:
           sbom: ${{ inputs.docker_sbom }}
 
       - name: Export digest
+        id: digest
         run: |
           mkdir -p /tmp/digests
           digest="${{ steps.build.outputs.digest }}"
@@ -166,4 +167,7 @@ jobs:
           SLACK_CHANNEL: ${{ inputs.slack_channel }}
           SLACK_COLOR: ${{ job.status }}
           SLACK_TITLE: ${{ inputs.slack_title }}
-          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}              
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+          
+    outputs:
+      digest: ${{ steps.build.outputs.digest }}
