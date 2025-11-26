@@ -5,7 +5,7 @@ on:
       java_version:
         description: "JDK version to use"
         required: false
-        default: '21'
+        default: '23'
         type: string
       java_distribution:
         description: "JDK distribution to use"
