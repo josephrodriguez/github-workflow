@@ -68,6 +68,11 @@ on:
         required: false
         default: "5m"
         type: string
+      go_project_dir:
+        description: "Path to the Go project directory to build. If empty, builds from root."
+        required: false
+        default: ""
+        type: string
       sonar_enabled:
         description: "Flag to enable SonarQube analysis."
         required: false
@@ -193,10 +198,13 @@ jobs:
       - name: Build binaries
         run: |
           mkdir -p ${{ inputs.go_build_output_dir }}
+          if [ -n "${{ inputs.go_project_dir }}" ]; then
+            cd "${{ inputs.go_project_dir }}"
+          fi
           GOOS=${{ inputs.go_build_os }} GOARCH=${{ inputs.go_build_arch }} go build \
             -ldflags "${{ inputs.go_build_ldflags }}" \
             -gcflags "${{ inputs.go_build_gcflags }}" \
-            -o ${{ inputs.go_build_output_dir }}/${{ inputs.go_build_output_name }} \
+            -o "${{ github.workspace }}/${{ inputs.go_build_output_dir }}/${{ inputs.go_build_output_name }}" \
             .
 
       - name: List generated binaries
