@@ -195,6 +195,7 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_modules_enabled` | boolean | `true` | No | Enable Go modules |
 | `go_tests_enabled` | boolean | `true` | No | Run unit tests |
 | `go_lint_enabled` | boolean | `true` | No | Run `golangci-lint` during the workflow |
+| `go_lint_timeout` | string | `5m` | No | Timeout for `golangci-lint` (e.g., `5m`) |
 | `go_coverage_enabled` | boolean | `true` | No | Enable coverage analysis |
 | `go_coverage_threshold` | string | `70` | No | Minimum coverage percentage |
 | `go_build_ldflags` | string | `` | No | LDFLAGS for build (e.g., `-s -w -X main.Version=1.0.0`) |

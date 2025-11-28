@@ -58,6 +58,16 @@ on:
         required: false
         default: "app"
         type: string
+      go_lint_enabled:
+        description: "Flag to enable or disable running golangci-lint."
+        required: false
+        default: false
+        type: boolean        
+      go_lint_timeout:
+        description: "Timeout for golangci-lint (e.g., '5m')."
+        required: false
+        default: "5m"
+        type: string
       sonar_enabled:
         description: "Flag to enable SonarQube analysis."
         required: false
@@ -137,10 +147,11 @@ jobs:
         run: go mod verify
 
       - name: Run linting
+        if: ${{ inputs.go_lint_enabled }}
         uses: golangci/golangci-lint-action@v3
         with:
           version: latest
-          args: --timeout=5m
+          args: --timeout=${{ inputs.go_lint_timeout }}
 
       - name: Run tests
         if: ${{ inputs.go_tests_enabled }}
