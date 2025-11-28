@@ -56,7 +56,7 @@ on:
       go_build_output_name:
         description: "Output binary name (without extension). Extension will be added automatically based on target OS."
         required: false
-        default: "app"
+        default: ""
         type: string
       go_lint_enabled:
         description: "Flag to enable or disable running golangci-lint."
