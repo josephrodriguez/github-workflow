@@ -151,18 +151,32 @@ jobs:
         if: ${{ inputs.go_coverage_enabled && inputs.go_tests_enabled }}
         run: |
           go tool cover -html=coverage.out -o coverage.html
-          go tool cover -func=coverage.out
+          go tool cover -func=coverage.out | tee coverage.txt
 
       - name: Check coverage threshold
-        if: ${{ inputs.go_coverage_enabled && inputs.go_tests_enabled }}
+        if: ${{ inputs.go_coverage_enabled && inputs.go_tests_enabled && inputs.go_coverage_check_enabled }}
         run: |
-          coverage=$(go tool cover -func=coverage.out | grep total | awk '{print int($3)}')
+          set -o pipefail
+          coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $NF}' | sed 's/%//')
           threshold=${{ inputs.go_coverage_threshold }}
-          echo "Code coverage: ${coverage}%"
-          echo "Threshold: ${threshold}%"
-          if [ "$coverage" -lt "$threshold" ]; then
-            echo "Coverage is below threshold"
+          
+          echo "========================================"
+          echo "Coverage Check Report"
+          echo "========================================"
+          echo "Current Coverage:  ${coverage}%"
+          echo "Required Threshold: ${threshold}%"
+          echo "========================================"
+          
+          # Compare as integers to avoid float issues
+          coverage_int=$(printf "%.0f" "${coverage}")
+          
+          if [ "${coverage_int}" -lt "${threshold}" ]; then
+            echo "❌ FAILED: Coverage (${coverage}%) is below threshold (${threshold}%)"
+            echo "Difference: $(( threshold - coverage_int ))%"
             exit 1
+          else
+            echo "✅ PASSED: Coverage (${coverage}%) meets or exceeds threshold (${threshold}%)"
+            echo "Margin: $(( coverage_int - threshold ))%"
           fi
 
       - name: Build binaries
@@ -183,7 +197,6 @@ jobs:
         if: ${{ inputs.sonar_enabled && secrets.SONAR_TOKEN != '' }}
         uses: SonarSource/sonarcloud-github-action@master
         env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
           args: >
