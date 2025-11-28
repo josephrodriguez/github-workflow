@@ -194,12 +194,15 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_version` | string | `1.21` | No | Go version to use |
 | `go_modules_enabled` | boolean | `true` | No | Enable Go modules |
 | `go_tests_enabled` | boolean | `true` | No | Run unit tests |
+| `go_lint_enabled` | boolean | `true` | No | Run `golangci-lint` during the workflow |
 | `go_coverage_enabled` | boolean | `true` | No | Enable coverage analysis |
 | `go_coverage_threshold` | string | `70` | No | Minimum coverage percentage |
 | `go_build_ldflags` | string | `` | No | LDFLAGS for build (e.g., `-s -w -X main.Version=1.0.0`) |
+| `go_build_gcflags` | string | `` | No | GCFLAGS (compiler flags) for `go build` (e.g., `-N -l`) |
 | `go_build_output_dir` | string | `./bin` | No | Binary output directory |
 | `go_build_os` | string | `linux` | No | Target OS (linux, windows, darwin) |
 | `go_build_arch` | string | `amd64` | No | Target architecture (amd64, arm64, 386) |
+| `go_build_output_name` | string | `app` | No | Output binary base name (extension added for Windows) |
 | `sonar_enabled` | boolean | `false` | No | Enable SonarQube analysis |
 | `sonar_project_key` | string | `` | No | SonarQube project key |
 | `sonar_host_url` | string | `https://sonarcloud.io` | No | SonarQube server URL |
