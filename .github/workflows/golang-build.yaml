@@ -194,8 +194,8 @@ jobs:
           ls -lh ${{ inputs.go_build_output_dir }}/
 
       - name: SonarQube analysis
-        if: ${{ inputs.sonar_enabled && secrets.SONAR_TOKEN != '' }}
-        uses: SonarSource/sonarcloud-github-action@master
+        if: ${{ inputs.sonar_enabled }}
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
