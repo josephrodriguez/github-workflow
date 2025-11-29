@@ -88,7 +88,12 @@ on:
         required: false
         default: ""
         type: string
-      sonar_enabled:
+      sonar_cache_enabled:
+        description: "Flag to enable or disable caching SonarQube packages."
+        required: false
+        default: true
+        type: boolean
+      sonar_analysis_enabled:
         description: "Flag to enable SonarQube analysis."
         required: false
         default: false
@@ -158,6 +163,14 @@ jobs:
           key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
           restore-keys: |
             ${{ runner.os }}-go-
+
+      - name: Cache SonarQube Cloud packages
+        if: ${{ inputs.sonar_analysis_enabled && inputs.sonar_cache_enabled}}
+        uses: actions/cache@v4
+        with:
+          path: ~\sonar\cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar            
 
       - name: Download dependencies
         if: ${{ inputs.go_modules_enabled }}
@@ -229,7 +242,7 @@ jobs:
           ls -lh ${{ inputs.go_build_output_dir }}/
 
       - name: SonarQube analysis
-        if: ${{ inputs.sonar_enabled }}
+        if: ${{ inputs.sonar_analysis_enabled }}
         uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}

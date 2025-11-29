@@ -208,7 +208,8 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_project_dir` | string | `` | No | Path to Go project directory to build. If empty, builds from root. |
 | `go_artifacts_enabled` | boolean | `true` | No | Enable uploading build artifacts |
 | `go_artifacts_name` | string | `` | No | Name for the uploaded artifacts. Falls back to `go_build_output_name` if empty. |
-| `sonar_enabled` | boolean | `false` | No | Enable SonarQube analysis |
+| `sonar_analysis_enabled` | boolean | `false` | No | Enable SonarQube analysis |
+| `sonar_cache_enabled` | boolean | `true` | No | Enable caching SonarQube packages |
 | `sonar_project_key` | string | `` | No | SonarQube project key |
 | `sonar_host_url` | string | `https://sonarcloud.io` | No | SonarQube server URL |
 | `slack_enabled` | boolean | `false` | No | Enable Slack notifications |
