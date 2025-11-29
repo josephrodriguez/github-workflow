@@ -205,6 +205,8 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_build_arch` | string | `amd64` | No | Target architecture (amd64, arm64, 386) |
 | `go_build_output_name` | string | `app` | No | Output binary base name (extension added for Windows) |
 | `go_project_dir` | string | `` | No | Path to Go project directory to build. If empty, builds from root. |
+| `go_artifacts_enabled` | boolean | `true` | No | Enable uploading build artifacts |
+| `go_artifacts_name` | string | `golang-binaries` | No | Name for the uploaded artifacts |
 | `sonar_enabled` | boolean | `false` | No | Enable SonarQube analysis |
 | `sonar_project_key` | string | `` | No | SonarQube project key |
 | `sonar_host_url` | string | `https://sonarcloud.io` | No | SonarQube server URL |

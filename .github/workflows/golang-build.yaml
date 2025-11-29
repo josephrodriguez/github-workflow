@@ -73,6 +73,16 @@ on:
         required: false
         default: ""
         type: string
+      go_artifacts_enabled:
+        description: "Flag to enable or disable uploading build artifacts."
+        required: false
+        default: true
+        type: boolean
+      go_artifacts_name:
+        description: "Name for the uploaded artifacts."
+        required: false
+        default: ""
+        type: string
       sonar_enabled:
         description: "Flag to enable SonarQube analysis."
         required: false
@@ -224,9 +234,10 @@ jobs:
             -Dsonar.go.coverage.reportPaths=coverage.out
 
       - name: Upload artifacts
+        if: ${{ inputs.go_artifacts_upload_enabled }}
         uses: actions/upload-artifact@v4
         with:
-          name: golang-binaries
+          name: ${{ inputs.go_artifacts_name || inputs.go_build_output_name }}
           path: ${{ inputs.go_build_output_dir }}/
           retention-days: 30
 
