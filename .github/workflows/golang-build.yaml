@@ -240,7 +240,7 @@ jobs:
             -Dsonar.go.coverage.reportPaths=coverage.out
 
       - name: Upload artifacts
-        if: ${{ inputs.go_artifacts_upload_enabled }}
+        if: ${{ inputs.go_artifacts_enabled }}
         uses: actions/upload-artifact@v4
         with:
           name: ${{ inputs.go_artifacts_name || inputs.go_build_output_name }}
