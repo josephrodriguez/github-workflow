@@ -180,13 +180,13 @@ jobs:
           go test -v -race -coverprofile=coverage.out ./...
 
       - name: Generate coverage report
-        if: ${{ inputs.go_coverage_enabled && inputs.go_tests_enabled }}
+        if: ${{ inputs.go_coverage_enabled }}
         run: |
           go tool cover -html=coverage.out -o coverage.html
           go tool cover -func=coverage.out | tee coverage.txt
 
       - name: Check coverage threshold
-        if: ${{ inputs.go_coverage_enabled && inputs.go_tests_enabled && inputs.go_coverage_check_enabled }}
+        if: ${{ inputs.go_coverage_enabled }}
         run: |
           set -o pipefail
           coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $NF}' | sed 's/%//')
@@ -245,16 +245,6 @@ jobs:
         with:
           name: ${{ inputs.go_artifacts_name || inputs.go_build_output_name }}
           path: ${{ inputs.go_build_output_dir }}/
-          retention-days: 30
-
-      - name: Upload coverage reports
-        if: ${{ inputs.go_coverage_enabled && inputs.go_tests_enabled }}
-        uses: actions/upload-artifact@v4
-        with:
-          name: coverage-reports
-          path: |
-            coverage.out
-            coverage.html
           retention-days: 30
 
       - name: Slack Notification
