@@ -18,6 +18,11 @@ on:
         required: false
         default: true
         type: boolean
+      go_cache_enabled:
+        description: "Flag to enable or disable caching Go modules and build cache."
+        required: false
+        default: true
+        type: boolean
       go_coverage_enabled:
         description: "Flag to enable or disable code coverage analysis."
         required: false
@@ -144,6 +149,7 @@ jobs:
           go-version: ${{ inputs.go_version }}
 
       - name: Cache Go modules
+        if: ${{ inputs.go_cache_enabled }}
         uses: actions/cache@v4
         with:
           path: |

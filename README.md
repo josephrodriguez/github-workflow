@@ -191,10 +191,11 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 
 | Parameter | Type | Default | Required | Description |
 |-----------|------|---------|----------|-------------|
-| `go_version` | string | `1.21` | No | Go version to use |
+| `go_version` | string | `1.24` | No | Go version to use |
 | `go_modules_enabled` | boolean | `true` | No | Enable Go modules |
 | `go_tests_enabled` | boolean | `true` | No | Run unit tests |
-| `go_lint_enabled` | boolean | `true` | No | Run `golangci-lint` during the workflow |
+| `go_cache_enabled` | boolean | `true` | No | Enable caching Go modules and build cache |
+| `go_lint_enabled` | boolean | `false` | No | Run `golangci-lint` during the workflow |
 | `go_lint_timeout` | string | `5m` | No | Timeout for `golangci-lint` (e.g., `5m`) |
 | `go_coverage_enabled` | boolean | `true` | No | Enable coverage analysis |
 | `go_coverage_threshold` | string | `70` | No | Minimum coverage percentage |
@@ -203,10 +204,10 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_build_output_dir` | string | `./bin` | No | Binary output directory |
 | `go_build_os` | string | `linux` | No | Target OS (linux, windows, darwin) |
 | `go_build_arch` | string | `amd64` | No | Target architecture (amd64, arm64, 386) |
-| `go_build_output_name` | string | `app` | No | Output binary base name (extension added for Windows) |
+| `go_build_output_name` | string | `` | No | Output binary base name (extension added for Windows) |
 | `go_project_dir` | string | `` | No | Path to Go project directory to build. If empty, builds from root. |
-| `go_artifacts_enabled` | boolean | `true` | No | Enable uploading build artifacts |
-| `go_artifacts_name` | string | `golang-binaries` | No | Name for the uploaded artifacts |
+| `go_artifacts_upload_enabled` | boolean | `true` | No | Enable uploading build artifacts |
+| `go_artifacts_name` | string | `` | No | Name for the uploaded artifacts. Falls back to `go_build_output_name` if empty. |
 | `sonar_enabled` | boolean | `false` | No | Enable SonarQube analysis |
 | `sonar_project_key` | string | `` | No | SonarQube project key |
 | `sonar_host_url` | string | `https://sonarcloud.io` | No | SonarQube server URL |
