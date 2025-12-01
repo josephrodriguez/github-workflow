@@ -182,7 +182,7 @@ jobs:
 
       - name: Run linting
         if: ${{ inputs.go_lint_enabled }}
-        uses: golangci/golangci-lint-action@v3
+        uses: golangci/golangci-lint-action@v9
         with:
           version: latest
           args: --timeout=${{ inputs.go_lint_timeout }}
