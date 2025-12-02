@@ -6,37 +6,52 @@ on:
       dotnet_version:
         description: "Specifies the .NET SDK version to use."
         required: false
-        default: "8.0.x"
+        default: "10.0.x"
         type: string
-      nuget_source_url:
+      dotnet_nuget_source_url:
         description: "URL for the custom NuGet source."
         required: false
         default: "https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json"
         type: string
-      nuget_source_name:
+      dotnet_nuget_source_name:
         description: "Name for the custom NuGet source."
         required: false
         default: "github"
         type: string
-      nuget_store_password_clear_text:
+      dotnet_nuget_store_password_clear_text:
         description: "Flag to store the NuGet password in clear text."
         required: false
         default: true
         type: boolean
-      run_tests:
+      dotnet_run_tests:
         description: "Flag to enable or disable running tests."
         required: false
         default: true
         type: boolean
-      build_no_restore:
+      dotnet_build_no_restore:
         description: "Flag to enable or disable the --no-restore option during build."
         required: false
         default: true
         type: boolean
-      build_configuration:
+      dotnet_build_configuration:
         description: "Build configuration (e.g., Debug or Release)."
         required: false
         default: "Release"
+        type: string
+      sonar_analysis_enabled:
+        description: "Flag to enable SonarQube analysis for the .NET build."
+        required: false
+        default: false
+        type: boolean
+      sonar_project_key:
+        description: "SonarQube project key."
+        required: false
+        default: ""
+        type: string
+      sonar_host_url:
+        description: "SonarQube host URL (e.g., https://sonarcloud.io)."
+        required: false
+        default: "https://sonarcloud.io"
         type: string
       slack_enabled:
         description: "Flag to enable Slack notifications"
@@ -64,7 +79,9 @@ on:
       NUGET_PASSWORD:
         required: true
       SLACK_WEBHOOK:
-        required: false  
+        required: false
+      SONAR_TOKEN:
+        required: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -86,27 +103,33 @@ jobs:
             ${{ runner.os }}-nuget-
 
       - name: Add .NET NuGet source
-        if: inputs.nuget_source_url != ''
+        if: ${{ inputs.dotnet_nuget_source_url != '' }}
         run: |
-          dotnet nuget add source ${{ inputs.nuget_source_url }} \
-            --name ${{ inputs.nuget_source_name }} \
+          dotnet nuget add source ${{ inputs.dotnet_nuget_source_url }} \
+            --name ${{ inputs.dotnet_nuget_source_name }} \
             --username ${{ secrets.NUGET_USERNAME }} \
             --password ${{ secrets.NUGET_PASSWORD }} \
-            ${{ inputs.nuget_store_password_clear_text && '--store-password-in-clear-text' || '' }}
+            ${{ inputs.dotnet_nuget_store_password_clear_text && '--store-password-in-clear-text' || '' }}
 
       - name: Restore dependencies
         run: dotnet restore
 
       - name: Build solution
         run: |
-          dotnet build \
-            ${{ inputs.build_no_restore && '--no-restore' || '' }} \
-            --configuration ${{ inputs.build_configuration }}
+          dotnet build ${{ inputs.dotnet_build_no_restore && '--no-restore' || '' }} --configuration ${{ inputs.dotnet_build_configuration }}
 
       - name: Run tests
-        if: ${{ inputs.run_tests }}
+        if: ${{ inputs.dotnet_run_tests }}
         run: dotnet test --verbosity normal
 
+      - name: SonarQube analysis
+        if: ${{ inputs.sonar_analysis_enabled }}
+        run: |
+          dotnet tool install --global dotnet-sonarscanner || true
+          export PATH="$HOME/.dotnet/tools:$PATH"
+          dotnet sonarscanner begin /k:"${{ inputs.sonar_project_key }}" /d:sonar.host.url="${{ inputs.sonar_host_url }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
         if: ${{ inputs.slack_enabled }}

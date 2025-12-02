@@ -56,6 +56,11 @@ on:
         required: false
         default: "info"
         type: string
+      gradle_publish_enabled:
+        description: "Enable Gradle publish step execution"
+        required: false
+        default: false
+        type: boolean
       slack_enabled:
         description: "Flag to enable Slack notifications"
         required: false
@@ -115,7 +120,7 @@ jobs:
           key: ${{ runner.os }}-gradle-${{ hashFiles('**/*.gradle') }}
           restore-keys: ${{ runner.os }}-gradle
 
-      - name: Build with Gradle
+      - name: Gradle build
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
           MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
@@ -130,6 +135,15 @@ jobs:
           ${{ inputs.gradle_enable_scan && '--scan' || '' }} \
           ${{ inputs.gradle_build_args }} \
           --warning-mode all
+
+      - name: Gradle publish
+        if: ${{ inputs.gradle_publish_enabled }}
+        env:
+          MAVEN_REGISTRY_USERNAME: ${{ secrets.MAVEN_REGISTRY_USERNAME }}
+          MAVEN_REGISTRY_PASSWORD: ${{ secrets.MAVEN_REGISTRY_PASSWORD }}
+        run: ./gradlew publish \
+          --${{ inputs.gradle_log_level}} \ 
+          ${{ inputs.gradle_disable_daemon && '--no-daemon' || '' }}
 
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2

@@ -174,10 +174,12 @@ jobs:
 
       - name: Download dependencies
         if: ${{ inputs.go_modules_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
         run: go mod download
 
       - name: Verify dependencies
         if: ${{ inputs.go_modules_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
         run: go mod verify
 
       - name: Run linting
@@ -189,17 +191,20 @@ jobs:
 
       - name: Run tests
         if: ${{ inputs.go_tests_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
         run: |
-          go test -v -race -coverprofile=coverage.out ./...
+          go test -v -parallel -coverprofile=coverage.out ./...
 
       - name: Generate coverage report
         if: ${{ inputs.go_coverage_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
         run: |
           go tool cover -html=coverage.out -o coverage.html
           go tool cover -func=coverage.out | tee coverage.txt
 
       - name: Check coverage threshold
         if: ${{ inputs.go_coverage_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
         run: |
           set -o pipefail
           coverage=$(go tool cover -func=coverage.out | grep total | awk '{print $NF}' | sed 's/%//')
@@ -225,11 +230,12 @@ jobs:
           fi
 
       - name: Build binaries
+        working-directory: ${{ inputs.go_project_dir || '.' }}
         run: |
           mkdir -p ${{ inputs.go_build_output_dir }}
-          if [ -n "${{ inputs.go_project_dir }}" ]; then
-            cd "${{ inputs.go_project_dir }}"
-          fi
+          # if [ -n "${{ inputs.go_project_dir }}" ]; then
+          #   cd "${{ inputs.go_project_dir }}"
+          # fi
           GOOS=${{ inputs.go_build_os }} GOARCH=${{ inputs.go_build_arch }} go build \
             -ldflags "${{ inputs.go_build_ldflags }}" \
             -gcflags "${{ inputs.go_build_gcflags }}" \
