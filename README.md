@@ -291,12 +291,12 @@ Comprehensive .NET build workflow with NuGet package management, testing, and Sl
 | Parameter | Type | Default | Required | Description |
 |-----------|------|---------|----------|-------------|
 | `dotnet_version` | string | `8.0.x` | No | .NET SDK version to use |
-| `nuget_source_url` | string | `https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json` | No | Custom NuGet source URL |
-| `nuget_source_name` | string | `github` | No | Name for the NuGet source |
-| `nuget_store_password_clear_text` | boolean | `true` | No | Store NuGet password in clear text |
-| `run_tests` | boolean | `true` | No | Run unit tests |
-| `build_no_restore` | boolean | `true` | No | Skip restore during build (use cached packages) |
-| `build_configuration` | string | `Release` | No | Build configuration (Debug or Release) |
+| `dotnet_nuget_source_url` | string | `https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json` | No | Custom NuGet source URL |
+| `dotnet_nuget_source_name` | string | `github` | No | Name for the NuGet source |
+| `dotnet_nuget_store_password_clear_text` | boolean | `true` | No | Store NuGet password in clear text |
+| `dotnet_run_tests` | boolean | `true` | No | Run unit tests |
+| `dotnet_build_no_restore` | boolean | `true` | No | Skip restore during build (use cached packages) |
+| `dotnet_build_configuration` | string | `Release` | No | Build configuration (Debug or Release) |
 | `slack_enabled` | boolean | `false` | No | Enable Slack notifications |
 | `slack_username` | string | `bot` | No | Slack bot username |
 | `slack_channel` | string | `slack-notification` | No | Slack channel |

@@ -193,7 +193,7 @@ jobs:
         if: ${{ inputs.go_tests_enabled }}
         working-directory: ${{ inputs.go_project_dir || '.' }}
         run: |
-          go test -v -race -coverprofile=coverage.out ./...
+          go test -v -parallel -coverprofile=coverage.out ./...
 
       - name: Generate coverage report
         if: ${{ inputs.go_coverage_enabled }}
