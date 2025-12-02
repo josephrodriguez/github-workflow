@@ -38,6 +38,21 @@ on:
         required: false
         default: "Release"
         type: string
+      sonar_analysis_enabled:
+        description: "Flag to enable SonarQube analysis for the .NET build."
+        required: false
+        default: false
+        type: boolean
+      sonar_project_key:
+        description: "SonarQube project key."
+        required: false
+        default: ""
+        type: string
+      sonar_host_url:
+        description: "SonarQube host URL (e.g., https://sonarcloud.io)."
+        required: false
+        default: "https://sonarcloud.io"
+        type: string
       slack_enabled:
         description: "Flag to enable Slack notifications"
         required: false
@@ -64,7 +79,9 @@ on:
       NUGET_PASSWORD:
         required: true
       SLACK_WEBHOOK:
-        required: false  
+        required: false
+      SONAR_TOKEN:
+        required: false
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -99,14 +116,20 @@ jobs:
 
       - name: Build solution
         run: |
-          dotnet build \
-            ${{ inputs.dotnet_build_no_restore && '--no-restore' || '' }} \
-            --configuration ${{ inputs.dotnet_build_configuration }}
+          dotnet build ${{ inputs.dotnet_build_no_restore && '--no-restore' || '' }} --configuration ${{ inputs.dotnet_build_configuration }}
 
       - name: Run tests
         if: ${{ inputs.dotnet_run_tests }}
         run: dotnet test --verbosity normal
 
+      - name: SonarQube analysis
+        if: ${{ inputs.sonar_analysis_enabled }}
+        run: |
+          dotnet tool install --global dotnet-sonarscanner || true
+          export PATH="$HOME/.dotnet/tools:$PATH"
+          dotnet sonarscanner begin /k:"${{ inputs.sonar_project_key }}" /d:sonar.host.url="${{ inputs.sonar_host_url }}" /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          dotnet sonarscanner end /d:sonar.login="${{ secrets.SONAR_TOKEN }}"
+          
       - name: Slack Notification
         uses: rtCamp/action-slack-notify@v2
         if: ${{ inputs.slack_enabled }}

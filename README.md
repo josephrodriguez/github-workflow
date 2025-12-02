@@ -257,7 +257,7 @@ jobs:
       go_build_ldflags: '-s -w -X main.Version=${{ github.ref_name }}'
       go_build_os: 'linux'
       go_build_arch: 'amd64'
-      sonar_enabled: true
+      sonar_analysis_enabled: true
       sonar_project_key: 'my-org_my-project'
       slack_enabled: true
       slack_channel: '#deployments'
@@ -297,6 +297,9 @@ Comprehensive .NET build workflow with NuGet package management, testing, and Sl
 | `dotnet_run_tests` | boolean | `true` | No | Run unit tests |
 | `dotnet_build_no_restore` | boolean | `true` | No | Skip restore during build (use cached packages) |
 | `dotnet_build_configuration` | string | `Release` | No | Build configuration (Debug or Release) |
+| `sonar_analysis_enabled` | boolean | `false` | No | Enable SonarQube analysis |
+| `sonar_project_key` | string | `` | No | SonarQube project key |
+| `sonar_host_url` | string | `https://sonarcloud.io` | No | SonarQube server URL |
 | `slack_enabled` | boolean | `false` | No | Enable Slack notifications |
 | `slack_username` | string | `bot` | No | Slack bot username |
 | `slack_channel` | string | `slack-notification` | No | Slack channel |
@@ -498,7 +501,7 @@ slack_title: 'Build Status'
 For workflows supporting SonarQube:
 
 ```yaml
-sonar_enabled: true
+sonar_analysis_enabled: true
 sonar_project_key: 'org_project'
 sonar_host_url: 'https://sonarcloud.io'  # or your self-hosted instance
 ```
