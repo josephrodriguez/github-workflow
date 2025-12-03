@@ -80,9 +80,9 @@ on:
         type: string         
     secrets:
       NUGET_USERNAME:
-        required: true
+        required: false
       NUGET_PASSWORD:
-        required: true
+        required: false
       SLACK_WEBHOOK:
         required: false
       SONAR_TOKEN:
