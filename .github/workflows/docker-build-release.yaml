@@ -2,10 +2,6 @@ name: docker-build
 on:
   workflow_call:
     inputs:
-      github_repository:
-        description: "Default Github environment variable - repository"
-        required: true
-        type: string
       docker_build_args:
         description: "Define Docker build arguments"
         required: false
@@ -52,12 +48,12 @@ on:
         required: false
         type: string
         default: "true"
-      docker_file_name:
+      docker_file:
         description: "Specifies the path to the Dockerfile used in the image building process"
         default: "./Dockerfile"
         required: false
         type: string
-      docker_push_enabled:
+      docker_push:
         description: "Specifies the path to the Dockerfile used in the image building process"
         default: false
         required: false
@@ -125,9 +121,9 @@ jobs:
           cache-from: ${{ inputs.docker_cache_from }}
           cache-to: ${{ inputs.docker_cache_to }}
           context: ${{ inputs.docker_context }}
-          file: ${{ inputs.docker_file_name }}
+          file: ${{ inputs.docker_file }}
           platforms: ${{ inputs.docker_platform }}
-          push: ${{ inputs.docker_push_enabled }}
+          push: ${{ inputs.docker_push }}
           tags: ${{ steps.metadata.outputs.tags }}
           labels: ${{ steps.metadata.outputs.labels }}
           provenance: ${{ inputs.docker_provenance }}
