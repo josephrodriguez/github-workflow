@@ -172,6 +172,11 @@ jobs:
           key: ${{ runner.os }}-sonar
           restore-keys: ${{ runner.os }}-sonar            
 
+      - name: Go tidy modules
+        if: ${{ inputs.go_modules_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
+        run: go mod tidy
+
       - name: Download dependencies
         if: ${{ inputs.go_modules_enabled }}
         working-directory: ${{ inputs.go_project_dir || '.' }}
