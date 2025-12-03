@@ -38,6 +38,11 @@ on:
         required: false
         default: "Release"
         type: string
+      dotnet_cache_enabled:
+        description: "Flag to enable or disable caching Nuget packages"
+        required: false
+        default: true
+        type: boolean        
       sonar_analysis_enabled:
         description: "Flag to enable SonarQube analysis for the .NET build."
         required: false
@@ -95,6 +100,7 @@ jobs:
           dotnet-version: ${{ inputs.dotnet_version }}
 
       - name: Cache NuGet packages
+        if: ${{ inputs.dotnet_cache_enabled }}
         uses: actions/cache@v4
         with:
           path: ~/.nuget/packages
