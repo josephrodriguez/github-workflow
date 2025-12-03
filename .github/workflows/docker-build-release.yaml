@@ -58,7 +58,7 @@ on:
         default: false
         required: false
         type: boolean  
-      github_runner_os_version:
+      github_runner:
         description: "Container operating system"
         default: "ubuntu-latest"
         required: false
@@ -92,7 +92,7 @@ on:
         required: false        
 jobs:
   build:
-    runs-on: ${{ inputs.github_runner_os_version }}
+    runs-on: ${{ inputs.github_runner }}
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6
