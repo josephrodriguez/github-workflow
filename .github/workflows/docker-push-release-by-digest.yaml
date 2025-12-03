@@ -23,7 +23,7 @@ on:
         description: "The URL of the Docker registry where the image will be pushed. For GitHub Container Registry, use ghcr.io."
         required: true
         type: string
-      os_version:
+      github_runner:
         description: "The operating system version used for the workflow runner. Defaults to ubuntu-latest. Adjust this to a different runner version if a specific OS version is required."
         default: "ubuntu-latest"
         required: false
@@ -55,7 +55,7 @@ on:
         required: true     
 jobs:
   push:
-    runs-on: ${{ inputs.os_version }}
+    runs-on: ${{ inputs.github_runner }}
     outputs:
       docker_image_name: ${{ inputs.docker_image_name}}
       docker_image_version: ${{ steps.metadata.outputs.version }}
