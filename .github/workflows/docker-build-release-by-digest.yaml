@@ -87,7 +87,9 @@ on:
       DOCKER_REGISTRY_USERNAME:
         required: true
       DOCKER_REGISTRY_TOKEN:
-        required: true        
+        required: true
+      SLACK_WEBHOOK:
+        required: false      
 jobs:
   build:
     runs-on: ${{ inputs.github_runner }}
