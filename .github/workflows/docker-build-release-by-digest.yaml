@@ -38,12 +38,7 @@ on:
         description: "Specifies the Docker platform for image building"
         default: linux/amd64
         required: false
-        type: string
-      docker_platform_name:
-        description: "Specifies the Docker platform name"
-        default: linux-amd64
-        required: false
-        type: string              
+        type: string          
       docker_registry_url:
         description: "Specifies the docker registry url to push the docker image."
         required: true
@@ -53,7 +48,7 @@ on:
         required: false
         type: string
         default: "true"
-      docker_file_name:
+      docker_file:
         description: "Specifies the path to the Dockerfile used in the image building process"
         default: "./Dockerfile"
         required: false
@@ -130,7 +125,7 @@ jobs:
           cache-from: ${{ inputs.docker_cache_from }}
           cache-to: ${{ inputs.docker_cache_to }}
           context: ${{ inputs.docker_context }}
-          file: ${{ inputs.docker_file_name }}
+          file: ${{ inputs.docker_file }}
           platforms: ${{ inputs.docker_platform }}
           outputs: type=image,name=${{ inputs.docker_image_name }},push-by-digest=true,name-canonical=true,push=${{ inputs.docker_push_enabled }}
           labels: ${{ steps.metadata.outputs.labels }}
