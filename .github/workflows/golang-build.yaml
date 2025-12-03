@@ -63,6 +63,16 @@ on:
         required: false
         default: ""
         type: string
+      go_cgo_enabled:
+        description: "Enable CGO (set to 0 for static binaries without C dependencies)."
+        required: false
+        default: "0"
+        type: string
+      go_111_module:
+        description: "Enable Go modules (on, off, or auto)."
+        required: false
+        default: "on"
+        type: string
       go_lint_enabled:
         description: "Flag to enable or disable running golangci-lint."
         required: false
@@ -236,12 +246,14 @@ jobs:
 
       - name: Build binaries
         working-directory: ${{ inputs.go_project_dir || '.' }}
+        env:
+          GOOS: ${{ inputs.go_build_os }}
+          GOARCH: ${{ inputs.go_build_arch }}
+          CGO_ENABLED: ${{ inputs.go_cgo_enabled }}
+          GO111MODULE: ${{ inputs.go_111_module }}
         run: |
           mkdir -p ${{ inputs.go_build_output_dir }}
-          # if [ -n "${{ inputs.go_project_dir }}" ]; then
-          #   cd "${{ inputs.go_project_dir }}"
-          # fi
-          GOOS=${{ inputs.go_build_os }} GOARCH=${{ inputs.go_build_arch }} go build \
+           go build \
             -ldflags "${{ inputs.go_build_ldflags }}" \
             -gcflags "${{ inputs.go_build_gcflags }}" \
             -o "${{ github.workspace }}/${{ inputs.go_build_output_dir }}/${{ inputs.go_build_output_name }}" \

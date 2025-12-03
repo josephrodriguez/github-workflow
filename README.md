@@ -205,6 +205,8 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_build_os` | string | `linux` | No | Target OS (linux, windows, darwin) |
 | `go_build_arch` | string | `amd64` | No | Target architecture (amd64, arm64, 386) |
 | `go_build_output_name` | string | `` | No | Output binary base name (extension added for Windows) |
+| `go_cgo_enabled` | string | `0` | No | Enable CGO (0 for static binaries without C dependencies, 1 to enable) |
+| `go_111_module` | string | `on` | No | Go modules mode (on, off, or auto) |
 | `go_project_dir` | string | `` | No | Path to Go project directory to build. If empty, builds from root. |
 | `go_artifacts_enabled` | boolean | `true` | No | Enable uploading build artifacts |
 | `go_artifacts_name` | string | `` | No | Name for the uploaded artifacts. Falls back to `go_build_output_name` if empty. |
