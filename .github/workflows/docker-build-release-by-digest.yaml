@@ -93,8 +93,8 @@ on:
 jobs:
   build:
     runs-on: ${{ inputs.github_runner }}
-    container: 
-      image: ghcr.io/actions/actions-runner
+    # container: 
+    #   image: ghcr.io/actions/actions-runner
     steps:
       - name: Checkout Code
         uses: actions/checkout@v6

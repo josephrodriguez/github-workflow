@@ -407,7 +407,6 @@ jobs:
   build:
     uses: josephrodriguez/github-workflow/.github/workflows/docker-build-release.yaml@main
     with:
-      github_repository: ${{ github.repository }}
       docker_image_name: 'myorg/myapp'
       docker_registry_url: 'docker.io'
       docker_image_tags: 'latest,${{ github.ref_name }}'
@@ -425,7 +424,6 @@ jobs:
   build:
     uses: josephrodriguez/github-workflow/.github/workflows/docker-build-release.yaml@main
     with:
-      github_repository: ${{ github.repository }}
       docker_image_name: 'ghcr.io/${{ github.repository_owner }}/myapp'
       docker_registry_url: 'ghcr.io'
       docker_image_tags: 'latest'
