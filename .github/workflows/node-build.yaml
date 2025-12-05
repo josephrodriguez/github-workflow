@@ -1,0 +1,224 @@
+name: node-build
+
+on:
+  workflow_call:
+    inputs:
+      github_runner:
+        description: "Specifies the GitHub runner to use for the build."
+        required: false
+        default: "ubuntu-latest"
+        type: string
+
+      node_version:
+        description: "Specifies the Node.js version to use for the build."
+        required: false
+        default: "24"
+        type: string
+
+      node_registry_url:
+        description: "Specifies the Node.js registry URL."
+        required: false
+        default: "https://registry.npmjs.org"
+        type: string
+
+      node_registry_scope:
+        description: "Specifies the Node.js registry scope."
+        required: false
+        default: ""
+        type: string
+
+      node_architecture:
+        description: "Specifies the Node.js architecture."
+        required: false
+        default: ''
+        type: string
+
+      node_cache:
+        description: "Flag to enable or disable caching Node.js packages"
+        required: false
+        default: ''
+        type: string
+
+      node_run_lint:
+        description: "Enable ESLint step"
+        type: boolean
+        default: true
+
+      node_run_tests:
+        description: "Enable unit tests"
+        type: boolean
+        default: true
+
+      node_run_build:
+        description: "Enable build step"
+        type: boolean
+        default: true
+
+      node_audit_enabled:
+        description: "Enable npm audit check"
+        type: boolean
+        default: false  
+
+      node_audit_level:
+        description: "Enable npm audit check"
+        type: string
+        default: "high"
+
+      cypress_enabled:
+        description: "Enable Cypress UI tests"
+        type: boolean
+        default: false
+
+      cypress_start_command:
+        type: string
+        default: "npm run dev"
+        description: "Command to start the app before Cypress runs"
+
+      cypress_wait_on:
+        type: string
+        default: "http://localhost:3000"
+        description: "URL Cypress waits for before running tests"
+
+      cypress_browser:
+        type: string
+        default: "chrome"
+        description: "Browser for Cypress (chrome, firefox, electron)"
+
+      cypress_headed:
+        type: boolean
+        default: false
+        description: "Enable headed mode for Cypress"
+
+      cypress_record:
+        type: boolean
+        default: true
+        description: "Enable Cypress dashboard recording"
+
+      cypress_parallel:
+        type: boolean
+        default: true
+        description: "Enable parallel Cypress runs"
+
+      cypress_group:
+        type: string
+        default: "UI Tests"
+        description: "Cypress group name"
+
+      cypress_video:
+        type: boolean
+        default: false
+        description: "Enable Cypress video recording"
+
+      cypress_screenshots:
+        type: boolean
+        default: true
+        description: "Enable screenshot capture for failures"        
+
+      slack_enabled:
+        description: "Flag to enable Slack notifications"
+        required: false
+        default: false
+        type: boolean
+
+      slack_username:
+        description: "Slack username for the notification"
+        required: false
+        default: "bot"
+        type: string
+
+      slack_channel:
+        description: "Slack channel name for the notification"
+        required: false
+        default: "slack-notification"
+        type: string
+
+      slack_title:
+        description: "Slack title of the notification"
+        required: false
+        default: "Build"
+        type: string
+
+    secrets:
+      SLACK_WEBHOOK:
+        required: false
+      CYPRESS_RECORD_KEY:
+        required: false            
+
+jobs:
+  build:
+    runs-on: ${{ inputs.github_runner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '${{ inputs.node_version }}'
+          registry-url: '${{ inputs.node_registry_url }}'
+          scope: ${{ inputs.node_registry_scope != '' && inputs.node_registry_scope || null }}
+          architecture: ${{ inputs.node_architecture }}
+          cache: ${{ inputs.node_cache }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run ESLint
+        if: ${{ inputs.node_run_lint }}
+        run: npm run lint
+
+      - name: Run unit tests
+        if: ${{ inputs.node_run_tests }}
+        run: npm test -- --coverage
+
+      - name: Build
+        if: ${{ inputs.node_run_build }}
+        run: npm run build
+
+      - name: Security audit
+        if: ${{ inputs.node_audit_enabled }}
+        run: npm audit --audit-level=${{ inputs.node_audit_level }}
+
+      - name: Run Cypress tests
+        if: ${{ inputs.run_cypress }}
+        uses: cypress-io/github-action@v6
+        with:
+          start: ${{ inputs.cypress_start_command }}
+          wait-on: ${{ inputs.cypress_wait_on }}
+          browser: ${{ inputs.cypress_browser }}
+          headed: ${{ inputs.cypress_headed }}
+          record: ${{ inputs.cypress_record }}
+          parallel: ${{ inputs.cypress_parallel }}
+          group: ${{ inputs.cypress_group }}
+          ci-build-id: ${{ github.sha }}
+          config: >
+            video=${{ inputs.cypress_video }},
+            screenshotOnRunFailure=${{ inputs.cypress_screenshots }}
+        env:
+          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
+
+      - name: Upload Cypress screenshots
+        if: ${{ inputs.cypress_enabled }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-screenshots
+          path: cypress/screenshots
+
+      - name: Upload Cypress videos
+        if: ${{ inputs.cypress_enabled }}
+        uses: actions/upload-artifact@v4
+        with:
+          name: cypress-videos
+          path: cypress/videos
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: ${{ inputs.slack_enabled }}
+        env:
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_CHANNEL: ${{ inputs.slack_channel }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: ${{ inputs.slack_title }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}      

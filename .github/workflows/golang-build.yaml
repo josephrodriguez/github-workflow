@@ -138,7 +138,7 @@ on:
         required: false
         default: "Golang Build"
         type: string
-      github_runner_os_version:
+      github_runner:
         description: "Runner operating system"
         default: "ubuntu-latest"
         required: false
@@ -151,7 +151,7 @@ on:
 
 jobs:
   build:
-    runs-on: ${{ inputs.github_runner_os_version }}
+    runs-on: ${{ inputs.github_runner }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
