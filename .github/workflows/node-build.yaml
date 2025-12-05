@@ -182,35 +182,6 @@ jobs:
         run: npm audit --audit-level=${{ inputs.node_audit_level }}
 
       - name: Run Cypress tests
-        uses: cypress-io/github-action@v6
-        with:
-          start: npm run dev
-          wait-on: 'http://localhost:3000'
-          browser: chrome
-          headed: false
-          record: true
-          parallel: true
-          group: 'UI Tests'
-          ci-build-id: ${{ github.sha }}
-          config: video=false,screenshotOnRunFailure=true
-        env:
-          CYPRESS_RECORD_KEY: ${{ secrets.CYPRESS_RECORD_KEY }}
-      
-      - name: Upload Cypress screenshots
-        uses: actions/upload-artifact@v3
-        if: failure()
-        with:
-          name: cypress-screenshots
-          path: cypress/screenshots
-      
-      - name: Upload Cypress videos
-        uses: actions/upload-artifact@v3
-        if: always()
-        with:
-          name: cypress-videos
-          path: cypress/videos
-
-      - name: Run Cypress tests
         if: ${{ inputs.run_cypress }}
         uses: cypress-io/github-action@v6
         with:
