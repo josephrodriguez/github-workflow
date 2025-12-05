@@ -1,0 +1,134 @@
+name: node-build
+
+on:
+  workflow_call:
+    inputs:
+      github_runner:
+        description: "Specifies the GitHub runner to use for the build."
+        required: false
+        default: "ubuntu-latest"
+        type: string
+      node_version:
+        description: "Specifies the Node.js version to use for the build."
+        required: false
+        default: "24"
+        type: string
+      node_registry_url:
+        description: "Specifies the Node.js registry URL."
+        required: false
+        default: "https://registry.npmjs.org"
+        type: string
+      node_registry_scope:
+        description: "Specifies the Node.js registry scope."
+        required: false
+        default: ""
+        type: string
+      node_architecture:
+        description: "Specifies the Node.js architecture."
+        required: false
+        default: ''
+        type: string
+      node_cache:
+        description: "Flag to enable or disable caching Node.js packages"
+        required: false
+        default: ''
+        type: string
+      node_run_lint:
+        description: "Enable ESLint step"
+        type: boolean
+        default: true        
+      node_typecheck_enabled:
+        description: "Enable TypeScript type check step"
+        required: false
+        type: boolean
+        default: false
+      node_run_tests:
+        description: "Enable unit tests"
+        type: boolean
+        default: true
+      node_run_build:
+        description: "Enable build step"
+        type: boolean
+        default: true
+      node_audit_enabled:
+        description: "Enable npm audit check"
+        type: boolean
+        default: false  
+      node_audit_level:
+        description: "Enable npm audit check"
+        type: string
+        default: "high"
+      slack_enabled:
+        description: "Flag to enable Slack notifications"
+        required: false
+        default: false
+        type: boolean
+      slack_username:
+        description: "Slack username for the notification"
+        required: false
+        default: "bot"
+        type: string
+      slack_channel:
+        description: "Slack channel name for the notification"
+        required: false
+        default: "slack-notification"
+        type: string
+      slack_title:
+        description: "Slack title of the notification"
+        required: false
+        default: "Build"
+        type: string
+    secrets:
+      SLACK_WEBHOOK:
+        required: false                   
+
+jobs:
+  build:
+    runs-on: ${{ inputs.github_runner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v6
+        with:
+          node-version: '${{ inputs.node_version }}'
+          registry-url: '${{ inputs.node_registry_url }}'
+          scope: ${{ inputs.node_registry_scope != '' && inputs.node_registry_scope || null }}
+          architecture: ${{ inputs.node_architecture }}
+          cache: ${{ inputs.node_cache }}
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Type check
+        if: ${{ inputs.node_typecheck_enabled }}
+        run: npm run typecheck        
+
+      - name: Run ESLint
+        if: ${{ inputs.node_run_lint }}
+        run: npm run lint
+
+      - name: Run unit tests
+        if: ${{ inputs.node_run_tests }}
+        run: npm test -- --coverage
+
+      - name: Build
+        if: ${{ inputs.node_run_build }}
+        run: npm run build
+
+      - name: Security audit
+        if: ${{ inputs.node_audit_enabled }}
+        run: npm audit --audit-level=${{ inputs.node_audit_level }}
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: ${{ inputs.slack_enabled }}
+        env:
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_CHANNEL: ${{ inputs.slack_channel }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: ${{ inputs.slack_title }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}      
