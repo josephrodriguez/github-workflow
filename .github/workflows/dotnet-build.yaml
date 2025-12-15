@@ -3,6 +3,11 @@ name: dotnet-build
 on:
   workflow_call:
     inputs:
+      github_runner:
+        description: "Specifies the runner instance for the job"
+        default: "ubuntu-latest"
+        required: false
+        type: string
       dotnet_version:
         description: "Specifies the .NET SDK version to use."
         required: false
@@ -89,7 +94,7 @@ on:
         required: false
 jobs:
   build:
-    runs-on: ubuntu-latest
+    runs-on: ${{ inputs.github_runner }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
