@@ -266,7 +266,7 @@ jobs:
 
       - name: SonarQube analysis
         if: ${{ inputs.sonar_analysis_enabled }}
-        uses: SonarSource/sonarqube-scan-action@v6
+        uses: SonarSource/sonarqube-scan-action@v7
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
         with:
