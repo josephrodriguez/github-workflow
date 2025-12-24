@@ -177,16 +177,8 @@ jobs:
           format: ${{ inputs.trivy_format }}
           severity: ${{ inputs.trivy_severity }}
           vuln-type: ${{ inputs.trivy_vulnerability_type }}
-          output: trivy-results.json
           exit-code: ${{ inputs.trivy_exit_code }}
-          ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}
-
-      - name: Upload Trivy Report
-        uses: actions/upload-artifact@v4
-        if: ${{ inputs.trivy_enabled }}
-        with:
-          name: trivy-security-scan
-          path: trivy-results.json              
+          ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}         
 
       - name: Export digest
         id: digest
