@@ -165,7 +165,7 @@ jobs:
 
       - name: Cache Go modules
         if: ${{ inputs.go_cache_enabled }}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: |
             ~/.cache/go-build
@@ -176,7 +176,7 @@ jobs:
 
       - name: Cache SonarQube Cloud packages
         if: ${{ inputs.sonar_analysis_enabled && inputs.sonar_cache_enabled}}
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~\sonar\cache
           key: ${{ runner.os }}-sonar
