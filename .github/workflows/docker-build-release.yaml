@@ -2,6 +2,11 @@ name: docker-build
 on:
   workflow_call:
     inputs:
+      github_runner:
+        description: "Container operating system"
+        default: "ubuntu-latest"
+        required: false
+        type: string    
       docker_build_args:
         description: "Define Docker build arguments"
         required: false
@@ -58,11 +63,46 @@ on:
         default: false
         required: false
         type: boolean  
-      github_runner:
-        description: "Container operating system"
-        default: "ubuntu-latest"
+      trivy_enabled:
+        description: "Enable Aqua Trivy security scan"
+        required: false
+        type: boolean
+        default: false
+      trivy_image_reference:
+        description: "Docker image reference to inspect"
         required: false
         type: string
+        default: ""
+      trivy_cache_enabled:
+        description: "Enable scan cache"
+        required: false
+        type: boolean
+        default: true
+      trivy_format:
+        description: "Enable output format json|table"
+        required: false
+        type: string
+        default: 'table'
+      trivy_severity:
+        description: "Specify severity level for scan"
+        required: false
+        type: string
+        default: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+      trivy_vulnerability_type:
+        description: "Specify vulnerability type"
+        required: false
+        type: string
+        default: 'os,library'
+      trivy_exit_code:
+        description: "Exit code"
+        required: false
+        type: string
+        default: '1'
+      trivy_ignore_unfixed:
+        description: "Ignore unfixed"
+        required: false
+        type: boolean
+        default: true
       slack_enabled:
         description: "Flag to enable Slack notifications"
         required: false
@@ -128,6 +168,26 @@ jobs:
           labels: ${{ steps.metadata.outputs.labels }}
           provenance: ${{ inputs.docker_provenance }}
           sbom: ${{ inputs.docker_sbom }}
+
+      - name: Security Scan with Trivy
+        uses: aquasecurity/trivy-action@0.20.0
+        if: ${{ inputs.trivy_enabled }}
+        with:
+          image-ref: ${{ inputs.trivy_image_reference }}
+          cache: ${{ inputs.trivy_cache_enabled }}
+          format: ${{ inputs.trivy_format }}
+          severity: ${{ inputs.trivy_severity }}
+          vuln-type: ${{ inputs.trivy_vulnerability_type }}
+          output: trivy-results.json
+          exit-code: ${{ inputs.trivy_exit_code }}
+          ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}
+
+      - name: Upload Trivy Report
+        uses: actions/upload-artifact@v4
+        if: ${{ inputs.trivy_enabled }}
+        with:
+          name: trivy-security-scan
+          path: trivy-results.json          
 
       - name: Slack notification
         uses: rtCamp/action-slack-notify@v2
