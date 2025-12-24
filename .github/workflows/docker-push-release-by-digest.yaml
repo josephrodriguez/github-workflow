@@ -63,7 +63,7 @@ jobs:
       docker_image_version: ${{ steps.metadata.outputs.version }}
     steps:
       - name: Download digests
-        uses: actions/download-artifact@v6
+        uses: actions/download-artifact@v7
         with:
           path: ${{ inputs.docker_digest_path}}
           pattern: ${{ inputs.docker_digest_pattern }}
