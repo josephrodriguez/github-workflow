@@ -73,11 +73,6 @@ on:
         required: false
         type: string
         default: ""
-      trivy_cache_enabled:
-        description: "Enable scan cache"
-        required: false
-        type: boolean
-        default: true
       trivy_format:
         description: "Enable output format json|table"
         required: false
@@ -174,7 +169,6 @@ jobs:
         if: ${{ inputs.trivy_enabled }}
         with:
           image-ref: ${{ inputs.trivy_image_reference }}
-          cache: ${{ inputs.trivy_cache_enabled }}
           format: ${{ inputs.trivy_format }}
           severity: ${{ inputs.trivy_severity }}
           vuln-type: ${{ inputs.trivy_vulnerability_type }}
