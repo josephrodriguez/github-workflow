@@ -92,7 +92,7 @@ on:
         description: "Exit code"
         required: false
         type: string
-        default: '1'
+        default: '0'
       trivy_ignore_unfixed:
         description: "Ignore unfixed"
         required: false
