@@ -277,7 +277,7 @@ jobs:
 
       - name: Upload artifacts
         if: ${{ inputs.go_artifacts_enabled }}
-        uses: actions/upload-artifact@v5
+        uses: actions/upload-artifact@v6
         with:
           name: ${{ inputs.go_artifacts_name || inputs.go_build_output_name }}
           path: ${{ inputs.go_build_output_dir }}/
