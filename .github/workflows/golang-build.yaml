@@ -118,6 +118,16 @@ on:
         required: false
         default: ""
         type: string
+      go_govulncheck_enabled:
+        description: "Flag to enable or disable installing and running govulncheck."
+        required: false
+        default: false
+        type: boolean
+      go_govulncheck_version:
+        description: "Version of govulncheck to install (e.g., 'latest' or a semver). Empty = latest."
+        required: false
+        default: ""
+        type: string
       go_project_dir:
         description: "Path to the Go project directory to build. If empty, builds from root."
         required: false
@@ -272,6 +282,18 @@ jobs:
           else
             revive ./...
           fi
+
+      - name: Install govulncheck
+        if: ${{ inputs.go_govulncheck_enabled }}
+        run: |
+          go install golang.org/x/vuln/cmd/govulncheck@${{ inputs.go_govulncheck_version || 'latest' }}
+
+      - name: Run govulncheck
+        if: ${{ inputs.go_govulncheck_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
+        run: |
+          echo "Running govulncheck"
+          govulncheck ./...
 
       - name: Run linting
         if: ${{ inputs.go_lint_enabled }}
