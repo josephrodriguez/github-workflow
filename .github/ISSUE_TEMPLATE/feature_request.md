@@ -4,16 +4,19 @@ about: "Use this template for implementing new development features or system ta
 title: "[Feature] <concise title here>"
 labels: ["enhancement", "needs-triage"]
 assignees: []
+
 ---
 
 ## 🧩 Context
 
 Briefly describe the background, system area, or use case this task relates to.
+
 ---
 
 ## 🎯 Objective
 
 Describe the purpose of the task and what it must achieve.
+
 ---
 
 ## ✅ Acceptance Criteria
