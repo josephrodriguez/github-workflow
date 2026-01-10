@@ -103,6 +103,21 @@ on:
         required: false
         default: ""
         type: string
+      go_revive_enabled:
+        description: "Flag to enable or disable installing and running revive."
+        required: false
+        default: false
+        type: boolean
+      go_revive_version:
+        description: "Version of revive to install (e.g., 'latest' or a semver). Empty = latest."
+        required: false
+        default: ""
+        type: string
+      go_revive_rules_file:
+        description: "Path to revive rules/config file. If empty, revive runs with defaults."
+        required: false
+        default: ""
+        type: string
       go_project_dir:
         description: "Path to the Go project directory to build. If empty, builds from root."
         required: false
@@ -242,6 +257,21 @@ jobs:
         run: |
           echo "Running staticcheck"
           staticcheck ./...
+
+      - name: Install revive
+        if: ${{ inputs.go_revive_enabled }}
+        run: |
+          go install github.com/mgechev/revive@${{ inputs.go_revive_version || 'latest' }}
+
+      - name: Run revive
+        if: ${{ inputs.go_revive_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
+        run: |
+          if [ -n "${{ inputs.go_revive_rules_file }}" ]; then
+            revive -config "${{ inputs.go_revive_rules_file }}" ./...
+          else
+            revive ./...
+          fi
 
       - name: Run linting
         if: ${{ inputs.go_lint_enabled }}
