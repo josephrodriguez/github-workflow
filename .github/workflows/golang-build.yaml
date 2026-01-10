@@ -83,6 +83,11 @@ on:
         required: false
         default: "5m"
         type: string
+      go_fmt_enabled:
+        description: "Flag to enable or disable running go fmt."
+        required: false
+        default: true
+        type: boolean
       go_project_dir:
         description: "Path to the Go project directory to build. If empty, builds from root."
         required: false
@@ -196,6 +201,13 @@ jobs:
         if: ${{ inputs.go_modules_enabled }}
         working-directory: ${{ inputs.go_project_dir || '.' }}
         run: go mod verify
+
+      - name: Run go fmt
+        if: ${{ inputs.go_fmt_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
+        run: |
+          echo "Running go fmt"
+          go fmt ./...
 
       - name: Run linting
         if: ${{ inputs.go_lint_enabled }}
