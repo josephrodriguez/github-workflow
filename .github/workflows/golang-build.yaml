@@ -93,6 +93,16 @@ on:
         required: false
         default: true
         type: boolean
+      go_staticcheck_enabled:
+        description: "Flag to enable or disable installing and running staticcheck."
+        required: false
+        default: false
+        type: boolean
+      go_staticcheck_version:
+        description: "Version of staticcheck to install (e.g., '2025.1.1'). Empty = latest."
+        required: false
+        default: ""
+        type: string
       go_project_dir:
         description: "Path to the Go project directory to build. If empty, builds from root."
         required: false
@@ -220,6 +230,28 @@ jobs:
         run: |
           echo "Running go vet"
           go vet ./...
+
+      - name: Install staticcheck
+        if: ${{ inputs.go_staticcheck_enabled }}
+        run: |
+          set -euo pipefail
+          SC_VERSION="${{ inputs.go_staticcheck_version }}"
+          if [ -z "$SC_VERSION" ]; then
+            SC_VERSION=latest
+          fi
+          echo "Installing staticcheck@$SC_VERSION"
+          go install honnef.co/go/tools/cmd/staticcheck@${SC_VERSION}
+          # Ensure GOPATH/bin is available for subsequent steps
+          echo $PATH
+          echo "--------------------------------"
+          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+
+      - name: Run staticcheck
+        if: ${{ inputs.go_staticcheck_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
+        run: |
+          echo "Running staticcheck"
+          staticcheck ./...
 
       - name: Run linting
         if: ${{ inputs.go_lint_enabled }}
