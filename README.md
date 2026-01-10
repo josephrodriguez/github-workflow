@@ -214,6 +214,11 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_revive_enabled` | boolean | `false` | No | Install and run `revive` (github.com/mgechev/revive) for linting |
 | `go_revive_version` | string | `` | No | Version of `revive` to install (e.g. `latest`). Empty = `latest` |
 | `go_revive_rules_file` | string | `` | No | Path to `revive` rules/config file. If empty, defaults are used. |
+| `go_govulncheck_enabled` | boolean | `false` | No | Install and run `govulncheck` (golang.org/x/vuln/cmd/govulncheck) |
+| `go_govulncheck_version` | string | `` | No | Version of `govulncheck` to install (e.g. `latest`). Empty = `latest` |
+| `go_revive_enabled` | boolean | `false` | No | Install and run `revive` (github.com/mgechev/revive) for linting |
+| `go_revive_version` | string | `` | No | Version of `revive` to install (e.g. `latest`). Empty = `latest` |
+| `go_revive_rules_file` | string | `` | No | Path to `revive` rules/config file. If empty, defaults are used. |
 | `go_project_dir` | string | `` | No | Path to Go project directory to build. If empty, builds from root. |
 | `go_artifacts_enabled` | boolean | `true` | No | Enable uploading build artifacts |
 | `go_artifacts_name` | string | `` | No | Name for the uploaded artifacts. Falls back to `go_build_output_name` if empty. |
