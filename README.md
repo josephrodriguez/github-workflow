@@ -207,6 +207,8 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_build_output_name` | string | `` | No | Output binary base name (extension added for Windows) |
 | `go_cgo_enabled` | string | `0` | No | Enable CGO (0 for static binaries without C dependencies, 1 to enable) |
 | `go_111_module` | string | `on` | No | Go modules mode (on, off, or auto) |
+| `go_fmt_enabled` | boolean | `true` | No | Run `go fmt ./...` to format source files before building/tests |
+| `go_vet_enabled` | boolean | `true` | No | Run `go vet ./...` to perform static analysis checks before building/tests |
 | `go_project_dir` | string | `` | No | Path to Go project directory to build. If empty, builds from root. |
 | `go_artifacts_enabled` | boolean | `true` | No | Enable uploading build artifacts |
 | `go_artifacts_name` | string | `` | No | Name for the uploaded artifacts. Falls back to `go_build_output_name` if empty. |
