@@ -234,17 +234,7 @@ jobs:
       - name: Install staticcheck
         if: ${{ inputs.go_staticcheck_enabled }}
         run: |
-          set -euo pipefail
-          SC_VERSION="${{ inputs.go_staticcheck_version }}"
-          if [ -z "$SC_VERSION" ]; then
-            SC_VERSION=latest
-          fi
-          echo "Installing staticcheck@$SC_VERSION"
-          go install honnef.co/go/tools/cmd/staticcheck@${SC_VERSION}
-          # Ensure GOPATH/bin is available for subsequent steps
-          echo $PATH
-          echo "--------------------------------"
-          echo "$(go env GOPATH)/bin" >> $GITHUB_PATH
+          go install honnef.co/go/tools/cmd/staticcheck@${{ inputs.go_staticcheck_version || 'latest' }}
 
       - name: Run staticcheck
         if: ${{ inputs.go_staticcheck_enabled }}
@@ -308,14 +298,13 @@ jobs:
           CGO_ENABLED: ${{ inputs.go_cgo_enabled }}
           GO111MODULE: ${{ inputs.go_111_module }}
         run: |
-          mkdir -p ${{ inputs.go_build_output_dir }}
            go build \
             -ldflags "${{ inputs.go_build_ldflags }}" \
             -gcflags "${{ inputs.go_build_gcflags }}" \
             -o "${{ github.workspace }}/${{ inputs.go_build_output_dir }}/${{ inputs.go_build_output_name }}" \
             .
 
-      - name: List generated binaries
+      - name: List binaries
         run: |
           echo "Generated binaries:"
           ls -lh ${{ inputs.go_build_output_dir }}/

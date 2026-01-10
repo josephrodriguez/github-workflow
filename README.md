@@ -209,6 +209,8 @@ Advanced Go application build workflow with multi-platform support, testing, cov
 | `go_111_module` | string | `on` | No | Go modules mode (on, off, or auto) |
 | `go_fmt_enabled` | boolean | `true` | No | Run `go fmt ./...` to format source files before building/tests |
 | `go_vet_enabled` | boolean | `true` | No | Run `go vet ./...` to perform static analysis checks before building/tests |
+| `go_staticcheck_enabled` | boolean | `false` | No | Install and run `staticcheck` (honnef.co/go/tools) for static analysis |
+| `go_staticcheck_version` | string | `` | No | Version of `staticcheck` to install (e.g. `2025.1.1`). Empty = `latest` |
 | `go_project_dir` | string | `` | No | Path to Go project directory to build. If empty, builds from root. |
 | `go_artifacts_enabled` | boolean | `true` | No | Enable uploading build artifacts |
 | `go_artifacts_name` | string | `` | No | Name for the uploaded artifacts. Falls back to `go_build_output_name` if empty. |
