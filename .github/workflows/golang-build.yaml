@@ -88,6 +88,11 @@ on:
         required: false
         default: true
         type: boolean
+      go_vet_enabled:
+        description: "Flag to enable or disable running go vet."
+        required: false
+        default: true
+        type: boolean
       go_project_dir:
         description: "Path to the Go project directory to build. If empty, builds from root."
         required: false
@@ -208,6 +213,13 @@ jobs:
         run: |
           echo "Running go fmt"
           go fmt ./...
+
+      - name: Run go vet
+        if: ${{ inputs.go_vet_enabled }}
+        working-directory: ${{ inputs.go_project_dir || '.' }}
+        run: |
+          echo "Running go vet"
+          go vet ./...
 
       - name: Run linting
         if: ${{ inputs.go_lint_enabled }}
