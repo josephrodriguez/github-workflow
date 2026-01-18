@@ -47,7 +47,12 @@ on:
         description: "Flag to enable or disable caching Nuget packages"
         required: false
         default: true
-        type: boolean        
+        type: boolean
+      dotnet_install_dir:
+        description: "Directory to install the .NET SDK."
+        required: false
+        default: "$HOME/.dotnet"
+        type: string
       sonar_analysis_enabled:
         description: "Flag to enable SonarQube analysis for the .NET build."
         required: false
@@ -95,6 +100,8 @@ on:
 jobs:
   build:
     runs-on: ${{ inputs.github_runner }}
+    env:
+      DOTNET_INSTALL_DIR: ${{ inputs.dotnet_install_dir }}
     steps:
       - name: Checkout code
         uses: actions/checkout@v6
