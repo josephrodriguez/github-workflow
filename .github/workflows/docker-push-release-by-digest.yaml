@@ -23,6 +23,36 @@ on:
         description: "The URL of the Docker registry where the image will be pushed. For GitHub Container Registry, use ghcr.io."
         required: true
         type: string
+      trivy_enabled:
+        description: "Enable Aqua Trivy security scan"
+        required: false
+        type: boolean
+        default: false        
+      trivy_format:
+        description: "Enable output format json|table"
+        required: false
+        type: string
+        default: 'table'
+      trivy_severity:
+        description: "Specify severity level for scan"
+        required: false
+        type: string
+        default: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+      trivy_vulnerability_type:
+        description: "Specify vulnerability type"
+        required: false
+        type: string
+        default: 'os,library'
+      trivy_exit_code:
+        description: "Exit code"
+        required: false
+        type: string
+        default: '0'
+      trivy_ignore_unfixed:
+        description: "Ignore unfixed"
+        required: false
+        type: boolean
+        default: true          
       github_runner:
         description: "The operating system version used for the workflow runner. Defaults to ubuntu-latest. Adjust this to a different runner version if a specific OS version is required."
         default: "ubuntu-latest"
@@ -95,6 +125,17 @@ jobs:
       - name: Inspect image
         run: |
           docker buildx imagetools inspect ${{ inputs.docker_image_name}}:${{ steps.metadata.outputs.version }}
+
+      - name: Aqua Trivy
+        uses: aquasecurity/trivy-action@0.33.1
+        if: ${{ inputs.trivy_enabled }}
+        with:
+          image-ref: ${{ inputs.docker_image_name}}:${{ steps.metadata.outputs.version }}
+          format: ${{ inputs.trivy_format }}
+          severity: ${{ inputs.trivy_severity }}
+          vuln-type: ${{ inputs.trivy_vulnerability_type }}
+          exit-code: ${{ inputs.trivy_exit_code }}
+          ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}     
 
       - name: Slack notification
         uses: rtCamp/action-slack-notify@v2
