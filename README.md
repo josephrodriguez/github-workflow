@@ -7,6 +7,7 @@ A comprehensive collection of reusable GitHub Actions workflows for building, te
 - [Overview](#overview)
 - [Java Workflows](#java-workflows)
 - [Go Workflows](#go-workflows)
+- [Rust Workflows](#rust-workflows)
 - [.NET Workflows](#net-workflows)
 - [Docker Workflows](#docker-workflows)
 - [Getting Started](#getting-started)
@@ -282,6 +283,130 @@ jobs:
 
 ---
 
+## Rust Workflows
+
+### cargo-build
+
+Comprehensive Rust application build workflow with testing, cross-compilation, security scanning, and SonarQube integration.
+
+#### File
+`.github/workflows/cargo-build.yaml`
+
+#### Features
+
+- Configurable Rust version (stable, beta, nightly, or specific)
+- Cargo build with customizable release/debug modes
+- Unit and documentation tests
+- Code linting with `cargo clippy`
+- Code formatting check with `cargo fmt`
+- Security vulnerability scanning with `cargo audit`
+- Advanced security checks with `cargo deny` (licenses, advisories, bans)
+- Code coverage analysis with `cargo-tarpaulin`
+- Single-target cross-compilation support
+- SonarQube code quality analysis
+- Build artifact management
+- Slack notifications
+
+#### Input Parameters
+
+| Parameter | Type | Default | Required | Description |
+|-----------|------|---------|----------|-------------|
+| `rust_version` | string | `stable` | No | Rust version (stable, beta, nightly, or specific like 1.75.0) |
+| `rust_toolchain_components` | string | `clippy rustfmt` | No | Additional toolchain components to install |
+| `cargo_build_enabled` | boolean | `true` | No | Run cargo build |
+| `cargo_build_args` | string | `--release` | No | Additional cargo build arguments (e.g., `--release --all-features`) |
+| `cargo_build_output_dir` | string | `./target/release` | No | Output directory for compiled binaries |
+| `cargo_build_output_name` | string | `` | No | Output binary name. If empty, uses default from Cargo.toml |
+| `cargo_tests_enabled` | boolean | `true` | No | Run unit tests with `cargo test` |
+| `cargo_tests_args` | string | `` | No | Additional cargo test arguments |
+| `cargo_tests_doc_enabled` | boolean | `true` | No | Run documentation tests |
+| `cargo_bench_enabled` | boolean | `false` | No | Run benchmarks (dry run mode, no measurements) |
+| `cargo_fmt_enabled` | boolean | `true` | No | Check code formatting with `cargo fmt` |
+| `cargo_clippy_enabled` | boolean | `true` | No | Run clippy linter |
+| `cargo_clippy_args` | string | `-- -D warnings` | No | Additional clippy arguments |
+| `cargo_audit_enabled` | boolean | `true` | No | Run `cargo audit` for vulnerability scanning |
+| `cargo_deny_enabled` | boolean | `false` | No | Run `cargo deny` for license and security checks |
+| `cargo_cache_enabled` | boolean | `true` | No | Enable caching Cargo dependencies and build artifacts |
+| `cargo_project_dir` | string | `` | No | Path to Rust project directory. If empty, builds from root. |
+| `cargo_cross_compile_enabled` | boolean | `false` | No | Enable cross-compilation support |
+| `cargo_cross_target` | string | `` | No | Cross-compilation target triple (e.g., `aarch64-unknown-linux-gnu`) |
+| `cargo_artifacts_enabled` | boolean | `true` | No | Upload build artifacts |
+| `cargo_artifacts_name` | string | `rust-binaries` | No | Name for uploaded artifacts |
+| `sonar_analysis_enabled` | boolean | `false` | No | Enable SonarQube analysis |
+| `sonar_cache_enabled` | boolean | `true` | No | Enable caching SonarQube packages |
+| `sonar_project_key` | string | `` | No | SonarQube project key |
+| `sonar_host_url` | string | `https://sonarcloud.io` | No | SonarQube server URL |
+| `github_runner` | string | `ubuntu-latest` | No | GitHub Actions runner OS |
+| `slack_enabled` | boolean | `false` | No | Enable Slack notifications |
+| `slack_username` | string | `bot` | No | Slack bot username |
+| `slack_channel` | string | `slack-notification` | No | Slack channel |
+| `slack_title` | string | `Rust Cargo Build` | No | Slack message title |
+
+#### Secret Requirements
+
+| Secret | Required | Description |
+|--------|----------|-------------|
+| `SONAR_TOKEN` | No | SonarCloud authentication token |
+| `SLACK_WEBHOOK` | No | Slack webhook URL |
+
+#### Usage Examples
+
+**Basic Build**
+```yaml
+name: Rust Build
+
+on:
+  push:
+    branches: [ main ]
+  pull_request:
+    branches: [ main ]
+
+jobs:
+  build:
+    uses: josephrodriguez/github-workflow/.github/workflows/cargo-build.yaml@main
+    with:
+      rust_version: 'stable'
+      cargo_tests_enabled: true
+      cargo_clippy_enabled: true
+      cargo_audit_enabled: true
+```
+
+**Advanced Build with Cross-Compilation and SonarQube**
+```yaml
+jobs:
+  build:
+    uses: josephrodriguez/github-workflow/.github/workflows/cargo-build.yaml@main
+    with:
+      rust_version: 'stable'
+      cargo_build_args: '--release --all-features'
+      cargo_tests_enabled: true
+      cargo_tarpaulin_enabled: true
+      cargo_cross_compile_enabled: true
+      cargo_cross_target: 'aarch64-unknown-linux-gnu'
+      sonar_analysis_enabled: true
+      sonar_project_key: 'my-org_my-project'
+      slack_enabled: true
+      slack_channel: '#deployments'
+    secrets:
+      SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+      SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
+```
+
+**Build with Security Checks**
+```yaml
+jobs:
+  build:
+    uses: josephrodriguez/github-workflow/.github/workflows/cargo-build.yaml@main
+    with:
+      rust_version: 'stable'
+      cargo_audit_enabled: true
+      cargo_deny_enabled: true
+      cargo_clippy_enabled: true
+      cargo_tests_enabled: true
+```
+
+---
+
 ## .NET Workflows
 
 ### dotnet-build
@@ -526,6 +651,7 @@ All workflows implement intelligent caching:
 
 - **Java**: Gradle and Maven caches
 - **Go**: Go build and module caches
+- **Rust**: Cargo registry, index, and build caches
 - **.NET**: NuGet package cache
 - **Docker**: GitHub Actions and Docker layer caches
 
