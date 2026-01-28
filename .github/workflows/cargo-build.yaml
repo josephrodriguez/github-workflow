@@ -1,0 +1,319 @@
+name: cargo-build
+
+on:
+  workflow_call:
+    inputs:
+      rust_version:
+        description: "Specifies the Rust version to use (stable, beta, nightly, or specific version like 1.75.0)."
+        required: false
+        default: "stable"
+        type: string
+      rust_toolchain_components:
+        description: "Additional Rust toolchain components to install (e.g., 'clippy rustfmt')."
+        required: false
+        default: "rustfmt,clippy"
+        type: string
+      cargo_build_enabled:
+        description: "Flag to enable or disable running cargo build."
+        required: false
+        default: true
+        type: boolean
+      cargo_build_args:
+        description: "Additional arguments for cargo build (e.g., '--release --all-features', '--target aarch64-unknown-linux-gnu', etc.)."
+        required: false
+        default: "--release"
+        type: string
+      cargo_build_output_dir:
+        description: "Output directory for compiled binaries."
+        required: false
+        default: "target/release"
+        type: string
+      cargo_tests_enabled:
+        description: "Flag to enable or disable running cargo test."
+        required: false
+        default: true
+        type: boolean
+      cargo_tests_args:
+        description: "Additional arguments for cargo test (e.g., '-- --test-threads=1')."
+        required: false
+        default: ""
+        type: string
+      cargo_tests_doc_enabled:
+        description: "Flag to enable or disable running documentation tests."
+        required: false
+        default: true
+        type: boolean
+      cargo_bench_enabled:
+        description: "Flag to enable or disable running cargo bench (benchmark tests only, no measurements)."
+        required: false
+        default: false
+        type: boolean
+      cargo_coverage_enabled:
+        description: "Flag to enable or disable code coverage analysis with tarpaulin."
+        required: false
+        default: false
+        type: boolean
+      cargo_fmt_enabled:
+        description: "Flag to enable or disable running cargo fmt check."
+        required: false
+        default: true
+        type: boolean
+      cargo_clippy_enabled:
+        description: "Flag to enable or disable running clippy (linter)."
+        required: false
+        default: true
+        type: boolean
+      cargo_clippy_args:
+        description: "Additional arguments for clippy."
+        required: false
+        default: "-- -D warnings"
+        type: string
+      cargo_audit_enabled:
+        description: "Flag to enable or disable running cargo audit for vulnerabilities."
+        required: false
+        default: true
+        type: boolean
+      cargo_deny_enabled:
+        description: "Flag to enable or disable running cargo deny for license and security checks."
+        required: false
+        default: false
+        type: boolean
+      cargo_cache_enabled:
+        description: "Flag to enable or disable caching Cargo dependencies."
+        required: false
+        default: true
+        type: boolean
+      cargo_project_dir:
+        description: "Path to the Rust project directory. If empty, builds from root."
+        required: false
+        default: ""
+        type: string
+      cargo_cross_compile_enabled:
+        description: "Flag to enable or disable cross-compilation support."
+        required: false
+        default: false
+        type: boolean
+      cargo_cross_target:
+        description: "Cross-compilation target triple (e.g., 'aarch64-unknown-linux-gnu', 'x86_64-pc-windows-gnu', 'aarch64-apple-darwin')."
+        required: false
+        default: ""
+        type: string
+      cargo_artifacts_enabled:
+        description: "Flag to enable or disable uploading build artifacts."
+        required: false
+        default: true
+        type: boolean
+      cargo_artifacts_name:
+        description: "Name for the uploaded artifacts."
+        required: false
+        default: "rust-binaries"
+        type: string
+      sonar_cache_enabled:
+        description: "Flag to enable or disable caching SonarQube packages."
+        required: false
+        default: true
+        type: boolean
+      sonar_analysis_enabled:
+        description: "Flag to enable SonarQube analysis."
+        required: false
+        default: false
+        type: boolean
+      sonar_project_key:
+        description: "SonarQube project key."
+        required: false
+        default: ""
+        type: string
+      sonar_host_url:
+        description: "SonarQube host URL."
+        required: false
+        default: "https://sonarcloud.io"
+        type: string
+      github_runner:
+        description: "Runner operating system"
+        default: "ubuntu-latest"
+        required: false
+        type: string
+      slack_enabled:
+        description: "Flag to enable Slack notifications"
+        required: false
+        default: false
+        type: boolean
+      slack_username:
+        description: "Slack username for the notification"
+        required: false
+        default: "bot"
+        type: string
+      slack_channel:
+        description: "Slack channel name for the notification"
+        required: false
+        default: "slack-notification"
+        type: string
+      slack_title:
+        description: "Slack title of the notification"
+        required: false
+        default: "Rust Cargo Build"
+        type: string
+    secrets:
+      SONAR_TOKEN:
+        required: false
+      SLACK_WEBHOOK:
+        required: false
+
+jobs:
+  build:
+    runs-on: ${{ inputs.github_runner }}
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v6
+        with:
+          fetch-depth: 0
+
+      - name: Install and Setup Rust
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: ${{ inputs.rust_version }}
+          components: ${{ inputs.rust_toolchain_components }}
+
+      - name: Install cross-compilation target
+        if: ${{ inputs.cargo_cross_compile_enabled }}
+        run: rustup target add ${{ inputs.cargo_cross_target }}
+
+      - name: Install cargo-audit
+        if: ${{ inputs.cargo_audit_enabled }}
+        run: cargo install cargo-audit
+
+      - name: Install cargo-deny
+        if: ${{ inputs.cargo_deny_enabled }}
+        run: cargo install cargo-deny
+
+      - name: Install cargo-tarpaulin
+        if: ${{ inputs.cargo_coverage_enabled }}
+        run: cargo install cargo-tarpaulin
+
+      - name: Cache Cargo registry
+        if: ${{ inputs.cargo_cache_enabled }}
+        uses: actions/cache@v5
+        with:
+          path: ~/.cargo/registry
+          key: ${{ runner.os }}-cargo-registry-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-registry-
+
+      - name: Cache Cargo index
+        if: ${{ inputs.cargo_cache_enabled }}
+        uses: actions/cache@v5
+        with:
+          path: ~/.cargo/git
+          key: ${{ runner.os }}-cargo-index-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-index-
+
+      - name: Cache Cargo build
+        if: ${{ inputs.cargo_cache_enabled }}
+        uses: actions/cache@v5
+        with:
+          path: ${{ inputs.cargo_project_dir || '.' }}/target
+          key: ${{ runner.os }}-cargo-build-${{ hashFiles('**/Cargo.lock') }}
+          restore-keys: |
+            ${{ runner.os }}-cargo-build-
+
+      - name: Cache SonarQube packages
+        if: ${{ inputs.sonar_analysis_enabled && inputs.sonar_cache_enabled}}
+        uses: actions/cache@v5
+        with:
+          path: ~/.sonar/cache
+          key: ${{ runner.os }}-sonar
+          restore-keys: ${{ runner.os }}-sonar
+
+      - name: Run cargo fmt check
+        if: ${{ inputs.cargo_fmt_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo fmt -- --check
+
+      - name: Run cargo clippy
+        if: ${{ inputs.cargo_clippy_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo clippy --all-targets --all-features ${{ inputs.cargo_clippy_args }}
+
+      - name: Run cargo clippy on tests
+        if: ${{ inputs.cargo_clippy_enabled && inputs.cargo_tests_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo clippy --tests --all-features ${{ inputs.cargo_clippy_args }}
+
+      - name: Run cargo audit (vulnerability check)
+        if: ${{ inputs.cargo_audit_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo audit
+
+      - name: Run cargo deny
+        if: ${{ inputs.cargo_deny_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: |
+          cargo deny check advisories
+          cargo deny check bans
+          cargo deny check licenses
+
+      - name: Run tests
+        if: ${{ inputs.cargo_tests_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo test --verbose ${{ inputs.cargo_tests_args }}
+
+      - name: Run documentation tests
+        if: ${{ inputs.cargo_tests_doc_enabled && inputs.cargo_tests_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo test --doc --verbose
+
+      - name: Run benchmarks (no measurements)
+        if: ${{ inputs.cargo_bench_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo bench --no-run ${{ inputs.cargo_tests_args }}
+
+      - name: Generate coverage
+        if: ${{ inputs.cargo_coverage_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo tarpaulin --out Xml --output-dir coverage --timeout 300 --all-features
+
+      - name: Build binary
+        if: ${{ inputs.cargo_build_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: cargo build ${{ inputs.cargo_build_args }}
+
+      - name: List binaries
+        if: ${{ inputs.cargo_build_enabled }}
+        working-directory: ${{ inputs.cargo_project_dir || '.' }}
+        run: ls -lh ${{ inputs.cargo_build_output_dir }}/ 2>/dev/null || true
+
+      - name: SonarQube analysis
+        if: ${{ inputs.sonar_analysis_enabled }}
+        uses: SonarSource/sonarqube-scan-action@v7
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+        with:
+          args: >
+            -Dsonar.projectKey=${{ inputs.sonar_project_key }}
+            -Dsonar.host.url=${{ inputs.sonar_host_url }}
+            ${{ inputs.cargo_coverage_enabled && '-Dsonar.coverageReportPaths=coverage/cobertura.xml' || '' }}
+
+      - name: Upload artifacts
+        if: ${{ inputs.cargo_artifacts_enabled && inputs.cargo_build_enabled }}
+        uses: actions/upload-artifact@v6
+        with:
+          name: ${{ inputs.cargo_artifacts_name }}
+          path: ${{ (inputs.cargo_project_dir || '.') }}/${{ inputs.cargo_build_output_dir }}/
+          retention-days: 30
+
+      - name: Slack Notification
+        uses: rtCamp/action-slack-notify@v2
+        if: ${{ inputs.slack_enabled }}
+        env:
+          SLACK_USERNAME: ${{ inputs.slack_username }}
+          SLACK_CHANNEL: ${{ inputs.slack_channel }}
+          SLACK_COLOR: ${{ job.status }}
+          SLACK_TITLE: ${{ inputs.slack_title }}
+          SLACK_MESSAGE: |
+            Rust version: ${{ inputs.rust_version }}
+            Status: ${{ job.status }}
+            Build enabled: ${{ inputs.cargo_build_enabled }}
+            Tests enabled: ${{ inputs.cargo_tests_enabled }}
+            Cross-compilation: ${{ inputs.cargo_cross_compile_enabled }}
+          SLACK_WEBHOOK: ${{ secrets.SLACK_WEBHOOK }}
