@@ -26,7 +26,7 @@ on:
       cargo_build_output_dir:
         description: "Output directory for compiled binaries."
         required: false
-        default: "./target/release"
+        default: "target/release"
         type: string
       cargo_tests_enabled:
         description: "Flag to enable or disable running cargo test."
