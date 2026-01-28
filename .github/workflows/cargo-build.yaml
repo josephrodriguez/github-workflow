@@ -11,7 +11,7 @@ on:
       rust_toolchain_components:
         description: "Additional Rust toolchain components to install (e.g., 'clippy rustfmt')."
         required: false
-        default: "clippy rustfmt"
+        default: "rustfmt,clippy"
         type: string
       cargo_build_enabled:
         description: "Flag to enable or disable running cargo build."
