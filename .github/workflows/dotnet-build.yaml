@@ -3,6 +3,11 @@ name: dotnet-build
 on:
   workflow_call:
     inputs:
+      github_runner_command:
+        description: "List of commands to execute before checkout (e.g., 'apt-get update', 'apt-get install -y package'). Commands are executed sequentially."
+        required: false
+        default: ""
+        type: string
       github_runner:
         description: "Specifies the runner instance for the job"
         default: "ubuntu-latest"
@@ -103,6 +108,10 @@ jobs:
     env:
       DOTNET_INSTALL_DIR: ${{ inputs.dotnet_install_dir }}
     steps:
+      - name: Execute runner commands
+        if: ${{ inputs.github_runner_command != '' }}
+        run: ${{ inputs.github_runner_command }}
+
       - name: Checkout code
         uses: actions/checkout@v6
 

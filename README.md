@@ -429,6 +429,7 @@ Comprehensive .NET build workflow with NuGet package management, testing, and Sl
 
 | Parameter | Type | Default | Required | Description |
 |-----------|------|---------|----------|-------------|
+| `github_runner_command` | string | `` | No | Commands to execute before checkout (e.g., `apt-get update && apt-get install -y package`). Commands execute sequentially if not empty |
 | `dotnet_version` | string | `8.0.x` | No | .NET SDK version to use |
 | `dotnet_nuget_source_url` | string | `https://nuget.pkg.github.com/${{ github.repository_owner }}/index.json` | No | Custom NuGet source URL |
 | `dotnet_nuget_source_name` | string | `github` | No | Name for the NuGet source |
