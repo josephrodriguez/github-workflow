@@ -103,6 +103,16 @@ on:
         required: false
         type: boolean
         default: true
+      trivy_output:
+        description: "Define the output variable in the step"
+        required: false
+        type: string
+        default: ""
+      trivy_upload_sarif:
+        description: "Upload Trivy scan results in SARIF format to GitHub Security tab. Requires trivy_format to be set to 'sarif'"
+        required: false
+        type: boolean
+        default: false
       slack_enabled:
         description: "Flag to enable Slack notifications"
         required: false
@@ -169,7 +179,7 @@ jobs:
           provenance: ${{ inputs.docker_provenance }}
           sbom: ${{ inputs.docker_sbom }}
 
-      - name: Security Scan with Trivy
+      - name: Run Trivy vulnerability scanner
         uses: aquasecurity/trivy-action@0.33.1
         if: ${{ inputs.trivy_enabled }}
         with:
@@ -179,7 +189,14 @@ jobs:
           version: ${{ inputs.trivy_version }}
           vuln-type: ${{ inputs.trivy_vulnerability_type }}
           exit-code: ${{ inputs.trivy_exit_code }}
-          ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}    
+          ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}
+          output: ${{ inputs.trivy_output }}
+
+      - name: Upload Trivy scan results to GitHub Security tab
+        uses: github/codeql-action/upload-sarif@v4
+        if: ${{ inputs.trivy_format == 'sarif' && inputs.trivy_upload_sarif }}
+        with:
+          sarif_file: ${{ inputs.trivy_output }}
 
       - name: Slack notification
         uses: rtCamp/action-slack-notify@v2
