@@ -52,7 +52,12 @@ on:
         description: "Ignore unfixed"
         required: false
         type: boolean
-        default: true          
+        default: true
+      trivy_version:
+        description: "Trivy action version to use"
+        required: false
+        type: string
+        default: 'latest'          
       github_runner:
         description: "The operating system version used for the workflow runner. Defaults to ubuntu-latest. Adjust this to a different runner version if a specific OS version is required."
         default: "ubuntu-latest"
@@ -133,6 +138,7 @@ jobs:
           image-ref: ${{ inputs.docker_image_name}}:${{ steps.metadata.outputs.version }}
           format: ${{ inputs.trivy_format }}
           severity: ${{ inputs.trivy_severity }}
+          version: ${{ inputs.trivy_version }}
           vuln-type: ${{ inputs.trivy_vulnerability_type }}
           exit-code: ${{ inputs.trivy_exit_code }}
           ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}     
