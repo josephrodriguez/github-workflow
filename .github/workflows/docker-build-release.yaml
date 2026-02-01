@@ -83,6 +83,11 @@ on:
         required: false
         type: string
         default: 'UNKNOWN,LOW,MEDIUM,HIGH,CRITICAL'
+      trivy_version:
+        description: "Trivy action version to use"
+        required: false
+        type: string
+        default: 'latest'           
       trivy_vulnerability_type:
         description: "Specify vulnerability type"
         required: false
@@ -171,6 +176,7 @@ jobs:
           image-ref: ${{ inputs.trivy_image_reference }}
           format: ${{ inputs.trivy_format }}
           severity: ${{ inputs.trivy_severity }}
+          version: ${{ inputs.trivy_version }}
           vuln-type: ${{ inputs.trivy_vulnerability_type }}
           exit-code: ${{ inputs.trivy_exit_code }}
           ignore-unfixed: ${{ inputs.trivy_ignore_unfixed }}    
