@@ -180,7 +180,7 @@ jobs:
           sbom: ${{ inputs.docker_sbom }}
 
       - name: Run Trivy vulnerability scanner
-        uses: aquasecurity/trivy-action@0.34.0
+        uses: aquasecurity/trivy-action@0.34.1
         if: ${{ inputs.trivy_enabled }}
         with:
           image-ref: ${{ inputs.trivy_image_reference }}
