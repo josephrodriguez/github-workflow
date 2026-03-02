@@ -296,7 +296,7 @@ jobs:
 
       - name: Upload artifacts
         if: ${{ inputs.cargo_artifacts_enabled && inputs.cargo_build_enabled }}
-        uses: actions/upload-artifact@v6
+        uses: actions/upload-artifact@v7
         with:
           name: ${{ inputs.cargo_artifacts_name }}
           path: ${{ (inputs.cargo_project_dir || '.') }}/${{ inputs.cargo_build_output_dir }}/
