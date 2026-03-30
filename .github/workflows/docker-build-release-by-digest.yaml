@@ -148,7 +148,7 @@ jobs:
           images: ${{ inputs.docker_image_name }}
         
       - name: Log in to Docker registry
-        uses: docker/login-action@v3
+        uses: docker/login-action@v4
         with:
           registry: ${{ inputs.docker_registry_url }}
           username: ${{ secrets.DOCKER_REGISTRY_USERNAME }}
