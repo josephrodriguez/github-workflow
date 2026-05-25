@@ -145,7 +145,7 @@ jobs:
         uses: aquasecurity/trivy-action@0.35.0
         if: ${{ inputs.trivy_enabled }}
         with:
-          image-ref: ${{ inputs.docker_image_name}}:${{ steps.metadata.outputs.version }}
+          image-ref: ${{ fromJSON(steps.metadata.outputs.json).tags[0] }}
           format: ${{ inputs.trivy_format }}
           severity: ${{ inputs.trivy_severity }}
           version: ${{ inputs.trivy_version }}
