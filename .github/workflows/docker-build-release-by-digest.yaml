@@ -130,7 +130,7 @@ jobs:
     runs-on: ${{ inputs.github_runner }}
     steps:
       - name: Checkout Code
-        uses: actions/checkout@v6
+        uses: actions/checkout@v7
 
       - name: Set up Docker buildx
         uses: docker/setup-buildx-action@v4
